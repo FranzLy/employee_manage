@@ -267,7 +267,6 @@ bool parse_show_command(const char* show_cmd, int len)
         goto out;
     }
 
-    // LOG_INFO("param_index = %d",param_index);
     for (i = param_index; i < len; i++) {
         if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
             LOG_WARN("Wrong command. If you want to show all the info, just input show.");
@@ -313,7 +312,7 @@ bool parse_exit_command(const char* exit_cmd, int len)
         }
     }
 
-    LOG_ERR("Exit the program with your command.");
+    LOG_INFO("Exit the program with your command.");
     exit(0);
 
 out:
@@ -470,8 +469,8 @@ bool check_id_validity(const char* work_id_str, int len)
     return true;
 }
 
-/* 
- *@brief 检查date 是否合法 
+/*
+ *@brief 检查date 是否合法
  *@param [in]year month day 年月日
  *@return true 成功 false 失败
  */
@@ -602,15 +601,18 @@ bool check_name_dep_pos_validity(const char* src_str, int len)
  */
 bool convert_cmd_param(const char* command, int param_index, int len, matched_info_type_t* matched_info)
 {
-    int i;
-    employee_info_type_t info = { 0 };
-    int space_cnt = 0, start_index = 0, end_index = 0;
-    int param_len;
+    
+    int space_cnt = 0, start_index = 0;
     bool param_flag = false;
-    int sort_flag = 0;
-    info_element_type param_type = 0, sort_type = 0, tmp_type;
+    bool ret = false;
     char buffer[MAX_CHAR_BUFFER_LEN] = { 0 };
-    bool ret;
+    info_element_type tmp_type = 0;
+
+    //判空
+    if(matched_info==NULL){
+        LOG_ERR("Input param is NULL.");
+        goto out;
+    }
 
     //分割参数 如 -i 12345 -n Zhangsan
     for (int i = param_index; i < len; i++) {
@@ -627,8 +629,8 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
 
         // 参数结尾
         if ((space_cnt == 2) && param_flag) {
-            end_index = i;
-            param_len = end_index - start_index - 2;
+            int param_len = i - start_index - 2;
+            int sort_flag = 0;
 
             //检查参数
             ret = check_cmd_param(command + start_index + 1, param_len, &tmp_type, &sort_flag);
@@ -645,7 +647,7 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
             //判断是否排序
             if (sort_flag == 1) {
                 LOG_INFO("sort type = %s", buffer);
-                ret = convert_param_to_sort_type(buffer, strlen(buffer), &sort_type);
+                ret = convert_param_to_sort_type(buffer, strlen(buffer), &(matched_info->sort_type));
                 if (!ret) {
                     goto out;
                 }
@@ -654,22 +656,17 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
             }
 
             //转化参数
-            ret = convert_param_to_info(buffer, strlen(buffer), &info, tmp_type);
+            ret = convert_param_to_info(buffer, strlen(buffer), &(matched_info->info), tmp_type);
             if (!ret) {
                 goto out;
             }
             //记录参数类型
-            param_type |= tmp_type;
+            (matched_info->param_type) |= tmp_type;
 
             space_cnt = 0;
             param_flag = false;
         }
     }
-
-    //保存所有参数
-    memcpy(&matched_info->info, &info, sizeof(employee_info_type_t));
-    matched_info->param_type = param_type;
-    matched_info->sort_type = sort_type;
 
 out:
     return ret;

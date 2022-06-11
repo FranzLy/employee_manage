@@ -164,14 +164,6 @@ void sort_matched_info(info_element_type sort_type)
         i++;
     }
 
-// debug
-#ifdef DEBUG_MODE
-    LOG_DEBUG("BEFORE SORT: ");
-    for (i = 0; i < s_matched_count; i++) {
-        show_one_employee_info(&(matched_arr[i]));
-    }
-#endif
-
     //排序后输出
     if (sort_type & EMPLOYEE_WORKID) {
         qsort(matched_arr, s_matched_count, sizeof(employee_info_type_t), compare_work_id);
