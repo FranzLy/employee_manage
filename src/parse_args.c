@@ -16,7 +16,7 @@ bool parse_command(const char* command, int len)
 
     //参数判断
     if (command == NULL) {
-        LOG_WARN("Input content is NULL.\n");
+        LOG_WARN("Input content is NULL.");
         return ret;
     }
 
@@ -47,7 +47,7 @@ bool parse_command(const char* command, int len)
         ret = true;
         break;
     default:
-        LOG_WARN("First character is no sense.\n");
+        LOG_WARN("First character is no sense.");
         break;
     }
 
@@ -68,13 +68,13 @@ bool parse_add_command(const char* add_cmd, int len)
 
     ret = check_cmd_name(add_cmd, len, ADD_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input add?\n");
+        LOG_WARN("Wrong command. Maybe you want to input add?");
         show_add_usage();
         goto out;
     }
 
     if (add_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for adding info as a employee.\n");
+        LOG_WARN("Too few parameters for adding info as a employee.");
         goto out;
     }
 
@@ -84,20 +84,20 @@ bool parse_add_command(const char* add_cmd, int len)
     }
 
     if (matched_info.sort_type != 0) {
-        LOG_WARN("Add employee info cannot sort.\n");
+        LOG_WARN("Add employee info cannot sort.");
         ret = false;
         goto out;
     }
 
     if (((matched_info.param_type & EMPLOYEE_WORKID) == 0) || ((matched_info.param_type & EMPLOYEE_NAME)) == 0) {
-        LOG_WARN("Add employee info must input work id and name.\n");
+        LOG_WARN("Add employee info must input work id and name.");
         ret = false;
         goto out;
     }
 
     ret = insert_one_employee(&(matched_info.info));
     if (!ret) {
-        LOG_ERR("Add one employee info failed.\n");
+        LOG_ERR("Add one employee info failed.");
     }
 
 out:
@@ -118,13 +118,13 @@ bool parse_del_command(const char* del_cmd, int len)
 
     ret = check_cmd_name(del_cmd, len, DEL_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input del?\n");
+        LOG_WARN("Wrong command. Maybe you want to input del?");
         show_del_usage();
         goto out;
     }
 
     if (del_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for deleting info.\n");
+        LOG_WARN("Too few parameters for deleting info.");
         goto out;
     }
 
@@ -134,20 +134,20 @@ bool parse_del_command(const char* del_cmd, int len)
     }
 
     if (matched_info.sort_type != 0) {
-        LOG_WARN("Delete employee info cannot sort.\n");
+        LOG_WARN("Delete employee info cannot sort.");
         ret = false;
         goto out;
     }
 
     if (matched_info.param_type != EMPLOYEE_WORKID) {
-        LOG_WARN("Delete employee info only need work id.\n");
+        LOG_WARN("Delete employee info only need work id.");
         ret = false;
         goto out;
     }
 
     ret = delete_one_employee_by_id(matched_info.info.work_id);
     if (!ret) {
-        LOG_ERR("Delete one employee info failed.\n");
+        LOG_ERR("Delete one employee info failed.");
     }
 
 out:
@@ -168,13 +168,13 @@ bool parse_mod_command(const char* mod_cmd, int len)
 
     ret = check_cmd_name(mod_cmd, len, MOD_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input mod?\n");
+        LOG_WARN("Wrong command. Maybe you want to input mod?");
         show_mod_usage();
         goto out;
     }
 
     if (mod_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for modifying info.\n");
+        LOG_WARN("Too few parameters for modifying info.");
         goto out;
     }
 
@@ -184,20 +184,20 @@ bool parse_mod_command(const char* mod_cmd, int len)
     }
 
     if (matched_info.sort_type != 0) {
-        LOG_WARN("Modify employee info cannot sort.\n");
+        LOG_WARN("Modify employee info cannot sort.");
         ret = false;
         goto out;
     }
 
     if ((((matched_info.param_type) & EMPLOYEE_WORKID) == 0) || (((matched_info.param_type) & ~EMPLOYEE_WORKID) == 0)) {
-        LOG_WARN("Modify employee info must input work id and one other employee info.\n");
+        LOG_WARN("Modify employee info must input work id and one other employee info.");
         ret = false;
         goto out;
     }
 
     ret = modify_one_employee_info(&(matched_info.info), matched_info.param_type);
     if (!ret) {
-        LOG_ERR("Modify one employee info failed.\n");
+        LOG_ERR("Modify one employee info failed.");
     }
 
 out:
@@ -218,13 +218,13 @@ bool parse_find_command(const char* find_cmd, int len)
 
     ret = check_cmd_name(find_cmd, len, FIND_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input find?\n");
+        LOG_WARN("Wrong command. Maybe you want to input find?");
         show_find_usage();
         goto out;
     }
 
     if (find_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for finding info.\n");
+        LOG_WARN("Too few parameters for finding info.");
         goto out;
     }
 
@@ -234,14 +234,14 @@ bool parse_find_command(const char* find_cmd, int len)
     }
 
     if (matched_info.sort_type == (EMPLOYEE_WORKID | EMPLOYEE_DATE)) {
-        LOG_WARN("Only support one sort index.\n");
+        LOG_WARN("Only support one sort index.");
         ret = false;
         goto out;
     }
 
     ret = find_employee_by_type(&matched_info);
     if (!ret) {
-        LOG_ERR("Find one employee info by type failed.\n");
+        LOG_ERR("Find one employee info by type failed.");
     }
 
 out:
@@ -262,15 +262,15 @@ bool parse_show_command(const char* show_cmd, int len)
 
     ret = check_cmd_name(show_cmd, len, SHOW_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input show?\n");
+        LOG_WARN("Wrong command. Maybe you want to input show?");
         show_trav_usage();
         goto out;
     }
 
-    // LOG_INFO("param_index = %d\n",param_index);
+    // LOG_INFO("param_index = %d",param_index);
     for (i = param_index; i < len; i++) {
         if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
-            LOG_WARN("Wrong command. If you want to show all the info, just input show.\n");
+            LOG_WARN("Wrong command. If you want to show all the info, just input show.");
             ret = false;
             show_trav_usage();
             goto out;
@@ -279,7 +279,7 @@ bool parse_show_command(const char* show_cmd, int len)
 
     ret = show_all_employee_info();
     if (!ret) {
-        LOG_ERR("Show all employee info failed.\n");
+        LOG_ERR("Show all employee info failed.");
     }
 
 out:
@@ -299,21 +299,21 @@ bool parse_exit_command(const char* exit_cmd, int len)
 
     ret = check_cmd_name(exit_cmd, len, EXIT_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input exit?\n");
+        LOG_WARN("Wrong command. Maybe you want to input exit?");
         show_exit_usage();
         goto out;
     }
 
     for (i = param_index; i < len; i++) {
         if (!(exit_cmd[i] == ' ' || exit_cmd[i] == '\t' || exit_cmd[i] == '\n')) {
-            LOG_WARN("Wrong command. If you want to exit the program, just input exit.\n");
+            LOG_WARN("Wrong command. If you want to exit the program, just input exit.");
             ret = false;
             show_exit_usage();
             goto out;
         }
     }
 
-    LOG_ERR("Exit the program with your command.\n");
+    LOG_ERR("Exit the program with your command.");
     exit(0);
 
 out:
@@ -333,7 +333,7 @@ bool parse_help_command(const char* help_cmd, int len)
 
     ret = check_cmd_name(help_cmd, len, HELP_COMMAND, &param_index);
     if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input help?\n");
+        LOG_WARN("Wrong command. Maybe you want to input help?");
         show_help_usage();
         goto out;
     }
@@ -341,7 +341,7 @@ bool parse_help_command(const char* help_cmd, int len)
     for (i = param_index; i < len; i++) {
         if (!(help_cmd[i] == ' ' || help_cmd[i] == '\t' || help_cmd[i] == '\n')) {
             ret = false;
-            LOG_WARN("Wrong command. If you want to get help, just input help.\n");
+            LOG_WARN("Wrong command. If you want to get help, just input help.");
             show_help_usage();
             goto out;
         }
@@ -378,7 +378,7 @@ bool check_cmd_name(const char* command, int len, char* cmd_name, int* param_ind
         }
     }
     strncpy(buffer, command, i);
-    buffer[i] = '\n';
+    buffer[i] = '\0';
 
     if (i == strlen(cmd_name) && strncmp(buffer, cmd_name, strlen(cmd_name)) == 0) {
         *param_index = i + 1;
@@ -455,14 +455,14 @@ bool check_id_validity(const char* work_id_str, int len)
 {
     //工号要求5位数
     if (len != WORK_ID_BUF_LEN - 1) {
-        LOG_WARN("Input work id must be like 07406 meanning length is %d.\n", WORK_ID_BUF_LEN - 1);
+        LOG_WARN("Input work id must be like 07406 meanning length is %d.", WORK_ID_BUF_LEN - 1);
         return false;
     }
 
     //纯数字
     for (int i = 0; i < len; i++) {
         if (work_id_str[i] < '0' || work_id_str[i] > '9') {
-            LOG_WARN("Input work id is invalid.\n");
+            LOG_WARN("Input work id is invalid.");
             return false;
         }
     }
@@ -487,7 +487,7 @@ bool check_date_validity_helper(int year, int month, int day)
 
     //判断是否早于公司成立年份或超过当前年份
     if (year < ESTABLISHED_YEAR || year > (1900 + p_time->tm_year)) {
-        LOG_WARN("Date info is invalid. Reason: year is invalid.\n");
+        LOG_WARN("Date info is invalid. Reason: year is invalid.");
         return false;
     }
 
@@ -498,14 +498,14 @@ bool check_date_validity_helper(int year, int month, int day)
 
     //判断月份日期是否合法
     if (month > 12 || month < 1 || day > month_buf[month - 1] || day < 1) {
-        LOG_WARN("Date info is invalid. Reason: month or day is invalid.\n");
+        LOG_WARN("Date info is invalid. Reason: month or day is invalid.");
         return false;
     }
 
     //判断是否超过当前日期
     if (year == (1900 + p_time->tm_year)) {
         if ((month > (1 + p_time->tm_mon)) || (month == (1 + p_time->tm_mon) && day > p_time->tm_mday)) {
-            LOG_WARN("Date info is invalid. Reason: month or day is over current date.\n");
+            LOG_WARN("Date info is invalid. Reason: month or day is over current date.");
             return false;
         }
     }
@@ -551,7 +551,7 @@ bool check_date_validity(const char* date_str, int len, entry_date_type_t* date)
         }
 
         if (date_str[i] < '0' || date_str[i] > '9') {
-            LOG_WARN("Input date %s is invalid.\n", date_str);
+            LOG_WARN("Input date %s is invalid.", date_str);
             return false;
         }
     }
@@ -584,7 +584,7 @@ bool check_name_dep_pos_validity(const char* src_str, int len)
     //要求全英文
     for (int i = 0; i < len; i++) {
         if (!((src_str[i] >= 'a' && src_str[i] <= 'z') || (src_str[i] >= 'A' && src_str[i] <= 'Z'))) {
-            LOG_WARN("Employee name、department or position must be English character.\n");
+            LOG_WARN("Employee name、department or position must be English character.");
             return false;
         }
     }
@@ -633,7 +633,7 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
             //检查参数
             ret = check_cmd_param(command + start_index + 1, param_len, &tmp_type, &sort_flag);
             if (!ret) {
-                LOG_INFO("Input invalid element format.\n");
+                LOG_INFO("Input invalid element format.");
                 goto out;
             }
 
@@ -644,7 +644,7 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
 
             //判断是否排序
             if (sort_flag == 1) {
-                LOG_INFO("sort type = %s\n", buffer);
+                LOG_INFO("sort type = %s", buffer);
                 ret = convert_param_to_sort_type(buffer, strlen(buffer), &sort_type);
                 if (!ret) {
                     goto out;
@@ -771,80 +771,80 @@ out:
 ///> 显示添加用法
 void show_add_usage()
 {
-    printf("--------------------Add one employee info:---------------------------\n");
-    printf("\t add -i work_id -n name [-d date] [-D department] [-p position]\n");
-    printf("Examples: \n");
-    printf("\t add -i 00001 -n Zhangsan -d 2022.05.11 -D development -p engineer\n ");
-    printf("\t add -i 00001 -n Zhangsan\n ");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("--------------------Add one employee info:---------------------------");
+    LOG_INFO("\t add -i work_id -n name [-d date] [-D department] [-p position]");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t add -i 00001 -n Zhangsan -d 2022.05.11 -D development -p engineer ");
+    LOG_INFO("\t add -i 00001 -n Zhangsan ");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示删除用法
 void show_del_usage()
 {
-    printf("--------------------Delete one employee info(by work_id):------------\n");
-    printf("\t del - i work_id\n ");
-    printf("Examples: \n");
-    printf("\t del -i 00001\n ");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("--------------------Delete one employee info(by work_id):------------");
+    LOG_INFO("\t del - i work_id ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t del -i 00001 ");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示修改用法
 void show_mod_usage()
 {
-    printf("--------------------Modify one employee info(except work_id):--------\n");
+    LOG_INFO("--------------------Modify one employee info(except work_id):--------");
 
-    printf("\t mod - i work_id[-n name][-d date][-D department][-p position]\n ");
-    printf("Examples: \n");
-    printf("\t mod -i 00001 -n Lisi\n ");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("\t mod - i work_id[-n name][-d date][-D department][-p position] ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t mod -i 00001 -n Lisi ");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示查找用法
 void show_find_usage()
 {
-    printf("-------------------Find one employee info(also can sort):-------\n");
-    printf("\t find [-i work_id] [- n name] [-s date] [-s id]\n ");
-    printf("Examples: \n");
-    printf("\t find -i 00001\n ");
-    printf("\t find -n Zhangsan\n ");
-    printf("\t find -n Zhangsan -d 2021.06.30\n ");
-    printf("\t find -n Zhangsan -s date\n ");
-    printf("\t find -n Zhangsan -s id\n ");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("-------------------Find one employee info(also can sort):-------");
+    LOG_INFO("\t find [-i work_id] [- n name] [-s date] [-s id] ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t find -i 00001 ");
+    LOG_INFO("\t find -n Zhangsan ");
+    LOG_INFO("\t find -n Zhangsan -d 2021.06.30 ");
+    LOG_INFO("\t find -n Zhangsan -s date ");
+    LOG_INFO("\t find -n Zhangsan -s id ");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示遍历用法
 void show_trav_usage()
 {
-    printf("------------------Show all employees info:-------------------- \n");
-    printf("Examples: \n");
-    printf("\t show\n ");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("------------------Show all employees info:-------------------- ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t show ");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示退出用法
 void show_exit_usage()
 {
-    printf("------------------Exit the program----------------------------------- \n");
-    printf("Examples: \n");
-    printf("\t exit\n");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("------------------Exit the program----------------------------------- ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t exit");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示帮助用法
 void show_help_usage()
 {
-    printf("------------------Use help command----------------------------------- \n");
-    printf("Examples: \n");
-    printf("\t help\n");
-    printf("---------------------------------------------------------------------\n\n");
+    LOG_INFO("------------------Use help command----------------------------------- ");
+    LOG_INFO("Examples: ");
+    LOG_INFO("\t help");
+    LOG_INFO("---------------------------------------------------------------------\n");
 }
 
 ///> 显示全部用法
 void show_usage()
 {
-    printf("employee_manager usage:\n");
+    LOG_INFO("employee_manager usage:");
     show_add_usage();
     show_del_usage();
     show_mod_usage();
