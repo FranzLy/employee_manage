@@ -3,19 +3,31 @@
 
 #include "employee_mgr.h"
 #include "stdlib.h"
-#include <unistd.h>
+#include <ctype.h>
 #include <malloc.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 
-#define ADD_COMMAND "add"
-#define DEL_COMMAND "del"
-#define MOD_COMMAND "mod"
-#define FIND_COMMAND "find"
-#define SHOW_COMMAND "show"
-#define EXIT_COMMAND "exit"
-#define HELP_COMMAND "help"
+#define ADD_COMMAND_STR "add"
+#define DEL_COMMAND_STR "del"
+#define MOD_COMMAND_STR "mod"
+#define FIND_COMMAND_STR "find"
+#define SHOW_COMMAND_STR "show"
+#define EXIT_COMMAND_STR "exit"
+#define HELP_COMMAND_STR "help"
+
+typedef enum _command_type_t {
+    add_command = 0,
+    del_command,
+    mod_command,
+    find_command,
+    show_command,
+    exit_command,
+    help_command,
+    invalid_command,
+} command_type_t;
 
 #define SORT_PARAM_DATE "date"
 #define SORT_PARAM_WORKID "id"
@@ -51,10 +63,12 @@ bool parse_help_command(const char* help_cmd, int len);
 /////////////////////////////////////解析命令的辅助函数/////////////////////////////////////
 
 ///> 检查输入的动作命令
+command_type_t check_cmd_type(const char* command, int len);
+
 bool check_cmd_name(const char* command, int len, char* cmd_name, int* param_index);
 
 ///> 检查输入参数
-bool check_cmd_param(const char* param, int len, info_element_type* type,int* sort_flag);
+bool check_cmd_param(const char* param, int len, info_element_type* type, int* sort_flag);
 
 ///> 检查work id 是否合法
 bool check_id_validity(const char* work_id_str, int len);

@@ -9,10 +9,12 @@
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-bool parse_command(const char* command, int len)
+bool parse_command(const char* command, int len) /* 不要用首字母 */
 {
-    char cmd_name[10] = { 0 };
+    char cmd_name[MAX_CHAR_BUFFER_LEN] = { 0 };
     bool ret = false;
+    int i = 0, start_index = 0;
+    command_type_t cmd_type = invalid_command;
 
     //参数判断
     if (command == NULL) {
@@ -20,34 +22,56 @@ bool parse_command(const char* command, int len)
         return ret;
     }
 
-    //按命令分别进行处理
-    switch (command[0]) {
-    case 'a':
-        ret = parse_add_command(command, len);
-        break;
-    case 'd':
-        ret = parse_del_command(command, len);
-        break;
-    case 'm':
-        ret = parse_mod_command(command, len);
-        break;
-    case 'f':
-        ret = parse_find_command(command, len);
-        break;
-    case 's':
-        ret = parse_show_command(command, len);
-        break;
-    case 'e':
-        ret = parse_exit_command(command, len);
-        break;
-    case 'h':
-        ret = parse_help_command(command, len);
-        break;
-    case '\n':
+    //跳过前面的空白字符
+    for (; i < len; i++) {
+        if (!(command[i] == ' ' || command[i] == '\t' || command[i] == '\n')) {
+            break;
+        }
+    }
+    if (i == len) {
         ret = true;
+        return ret;
+    }
+
+    //解析命令参数
+    start_index = i;
+    for (; i < len; i++) {
+        if (command[i] == ' ' || command[i] == '\t' || command[i] == '\n') {
+            break;
+        }
+    }
+    strncpy(cmd_name, command, i - start_index);
+    cmd_name[i - start_index] = '\0';
+    printf("command = %s\n", cmd_name);
+
+    //获取命令类型
+    cmd_type = check_cmd_type(cmd_name, strlen(cmd_name));
+
+    //按命令分别进行处理
+    switch (cmd_type) {
+    case add_command:
+        ret = parse_add_command(command + i, len - i);
+        break;
+    case del_command:
+        ret = parse_del_command(command + i, len - i);
+        break;
+    case mod_command:
+        ret = parse_mod_command(command + i, len - i);
+        break;
+    case find_command:
+        ret = parse_find_command(command + i, len - i);
+        break;
+    case show_command:
+        ret = parse_show_command(command + i, len - i);
+        break;
+    case exit_command:
+        ret = parse_exit_command(command + i, len - i);
+        break;
+    case help_command:
+        ret = parse_help_command(command + i, len - i);
         break;
     default:
-        LOG_WARN("First character is no sense.");
+        LOG_WARN("Invalid command type.");
         break;
     }
 
@@ -62,19 +86,22 @@ bool parse_command(const char* command, int len)
  */
 bool parse_add_command(const char* add_cmd, int len)
 {
-    int param_index = 0;
+    int i = 0, param_index = 0;
     bool ret = false;
     matched_info_type_t matched_info = { 0 };
 
-    ret = check_cmd_name(add_cmd, len, ADD_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input add?");
-        show_add_usage();
-        goto out;
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (add_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
     }
 
+    //以'-'为参数起始标记
     if (add_cmd[param_index] != '-') {
         LOG_WARN("Too few parameters for adding info as a employee.");
+        show_add_usage();
         goto out;
     }
 
@@ -112,15 +139,16 @@ out:
  */
 bool parse_del_command(const char* del_cmd, int len)
 {
-    int param_index = 0;
+    int i = 0, param_index = 0;
     bool ret = false;
     matched_info_type_t matched_info = { 0 };
 
-    ret = check_cmd_name(del_cmd, len, DEL_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input del?");
-        show_del_usage();
-        goto out;
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (del_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
     }
 
     if (del_cmd[param_index] != '-') {
@@ -162,15 +190,16 @@ out:
  */
 bool parse_mod_command(const char* mod_cmd, int len)
 {
-    int param_index = 0;
+    int i = 0, param_index = 0;
     bool ret = false;
     matched_info_type_t matched_info = { 0 };
 
-    ret = check_cmd_name(mod_cmd, len, MOD_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input mod?");
-        show_mod_usage();
-        goto out;
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (mod_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
     }
 
     if (mod_cmd[param_index] != '-') {
@@ -212,15 +241,16 @@ out:
  */
 bool parse_find_command(const char* find_cmd, int len)
 {
-    int param_index = 0;
+    int i = 0, param_index = 0;
     bool ret = false;
     matched_info_type_t matched_info = { 0 };
 
-    ret = check_cmd_name(find_cmd, len, FIND_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input find?");
-        show_find_usage();
-        goto out;
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (find_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
     }
 
     if (find_cmd[param_index] != '-') {
@@ -256,18 +286,10 @@ out:
  */
 bool parse_show_command(const char* show_cmd, int len)
 {
-    int param_index = 0;
     bool ret = false;
-    int i;
+    int i = 0;
 
-    ret = check_cmd_name(show_cmd, len, SHOW_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input show?");
-        show_trav_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
+    for (; i < len; i++) {
         if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
             LOG_WARN("Wrong command. If you want to show all the info, just input show.");
             ret = false;
@@ -280,6 +302,8 @@ bool parse_show_command(const char* show_cmd, int len)
     if (!ret) {
         LOG_ERR("Show all employee info failed.");
     }
+    printf("ret = %d\n",i);
+
 
 out:
     return ret;
@@ -293,17 +317,10 @@ out:
  */
 bool parse_exit_command(const char* exit_cmd, int len)
 {
-    int i, param_index = 0;
+    int i = 0;
     bool ret = false;
 
-    ret = check_cmd_name(exit_cmd, len, EXIT_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input exit?");
-        show_exit_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
+    for (; i < len; i++) {
         if (!(exit_cmd[i] == ' ' || exit_cmd[i] == '\t' || exit_cmd[i] == '\n')) {
             LOG_WARN("Wrong command. If you want to exit the program, just input exit.");
             ret = false;
@@ -327,17 +344,10 @@ out:
  */
 bool parse_help_command(const char* help_cmd, int len)
 {
-    int i, param_index = 0;
+    int i = 0;
     bool ret = false;
 
-    ret = check_cmd_name(help_cmd, len, HELP_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input help?");
-        show_help_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
+    for (; i < len; i++) {
         if (!(help_cmd[i] == ' ' || help_cmd[i] == '\t' || help_cmd[i] == '\n')) {
             ret = false;
             LOG_WARN("Wrong command. If you want to get help, just input help.");
@@ -356,6 +366,49 @@ out:
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////解析命令的辅助函数/////////////////////////////////////
+
+command_type_t check_cmd_type(const char* command, int len)
+{
+    command_type_t type = invalid_command;
+
+    if (len == strlen(ADD_COMMAND_STR) && strncmp(command, ADD_COMMAND_STR, len) == 0) {
+        type = add_command;
+        goto out;
+    }
+
+    if (len == strlen(DEL_COMMAND_STR) && strncmp(command, DEL_COMMAND_STR, len) == 0) {
+        type = del_command;
+        goto out;
+    }
+
+    if (len == strlen(MOD_COMMAND_STR) && strncmp(command, MOD_COMMAND_STR, len) == 0) {
+        type = mod_command;
+        goto out;
+    }
+
+    if (len == strlen(FIND_COMMAND_STR) && strncmp(command, FIND_COMMAND_STR, len) == 0) {
+        type = find_command;
+        goto out;
+    }
+
+    if (len == strlen(SHOW_COMMAND_STR) && strncmp(command, SHOW_COMMAND_STR, len) == 0) {
+        type = show_command;
+        goto out;
+    }
+
+    if (len == strlen(EXIT_COMMAND_STR) && strncmp(command, EXIT_COMMAND_STR, len) == 0) {
+        type = exit_command;
+        goto out;
+    }
+
+    if (len == strlen(HELP_COMMAND_STR) && strncmp(command, HELP_COMMAND_STR, len) == 0) {
+        type = help_command;
+        goto out;
+    }
+
+out:
+    return type;
+}
 
 /*
  *@brief 检查输入的动作命令
@@ -601,7 +654,7 @@ bool check_name_dep_pos_validity(const char* src_str, int len)
  */
 bool convert_cmd_param(const char* command, int param_index, int len, matched_info_type_t* matched_info)
 {
-    
+
     int space_cnt = 0, start_index = 0;
     bool param_flag = false;
     bool ret = false;
@@ -609,7 +662,7 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
     info_element_type tmp_type = 0;
 
     //判空
-    if(matched_info==NULL){
+    if (matched_info == NULL) {
         LOG_ERR("Input param is NULL.");
         goto out;
     }

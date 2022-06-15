@@ -82,6 +82,7 @@ void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matc
     }
 
 out:
+    printf("matched = %d\n", matched);
     if (matched) {
         if (sort_type == 0) {
             //不需要排序，直接输出

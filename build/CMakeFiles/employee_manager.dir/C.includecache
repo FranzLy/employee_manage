@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -47,6 +47,8 @@ employee_mgr.h
 ../include/employee_mgr.h
 stdlib.h
 ../include/stdlib.h
+ctype.h
+-
 malloc.h
 -
 stdbool.h
@@ -55,32 +57,12 @@ stddef.h
 -
 string.h
 -
-
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/employee_main.c
-parse_args.h
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/parse_args.h
-errno.h
--
-stdio.h
--
 unistd.h
 -
 
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/employee_mgr.c
-employee_mgr.h
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/employee_mgr.h
-
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/employee_utils.c
-employee_utils.h
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/employee_utils.h
-
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/hash_data.c
-hash_data.h
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/hash_data.h
-
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/parse_args.c
+/home/ly/桌面/fengyu/1st/fengyu/employee_manager/src/parse_args.c
 parse_args.h
-/home/liyu/Desktop/SANGFOR/fengyu/employee_manager/src/parse_args.h
+/home/ly/桌面/fengyu/1st/fengyu/employee_manager/src/parse_args.h
 time.h
 -
 
