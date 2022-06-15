@@ -32,6 +32,8 @@ typedef enum _command_type_t {
 #define SORT_PARAM_DATE "date"
 #define SORT_PARAM_WORKID "id"
 
+#define MAX_PARAM_NUM (6)//最大参数个数为6,包含员工各类信息以及排序
+
 /////////////////////////////////////解析命令的函数/////////////////////////////////////
 
 ///> 解析用户输入单行命令

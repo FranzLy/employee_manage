@@ -281,23 +281,37 @@ static bool convert_param_to_sort_type(const char* buffer, int len, info_element
  *@param [in]type     参数类型
  *@return true 成功 false 失败
  */
-static bool convert_param_to_info(const char* buffer, int len, employee_info_type_t* info, info_element_type type)
+static bool convert_param_to_info(const char* buffer, int len, matched_info_type_t* matched_info, info_element_type type)
 {
     bool ret = false;
 
     //工号
     if (type == EMPLOYEE_WORKID) {
+        if (matched_info->param_type & EMPLOYEE_WORKID) {
+            LOG_ERR("Cannot set same work id over one time!");
+            ret = false;
+            goto out;
+        }
+        (matched_info->param_type) |= EMPLOYEE_WORKID;
+
         ret = check_id_validity(buffer, len);
         if (!ret) {
             goto out;
         }
-        strncpy(info->work_id, buffer, len);
-        info->work_id[len] = '\0';
+        strncpy(matched_info->info.work_id, buffer, len);
+        matched_info->info.work_id[len] = '\0';
     }
 
     //日期
     if (type == EMPLOYEE_DATE) {
-        ret = check_date_validity(buffer, len, &(info->date));
+        if (matched_info->param_type & EMPLOYEE_DATE) {
+            LOG_ERR("Cannot set same date over one time!");
+            ret = false;
+            goto out;
+        }
+        (matched_info->param_type) |= EMPLOYEE_DATE;
+
+        ret = check_date_validity(buffer, len, &(matched_info->info.date));
         if (!ret) {
             goto out;
         }
@@ -305,34 +319,127 @@ static bool convert_param_to_info(const char* buffer, int len, employee_info_typ
 
     //姓名
     if (type == EMPLOYEE_NAME) {
+        if (matched_info->param_type & EMPLOYEE_NAME) {
+            LOG_ERR("Cannot set same name over one time!");
+            ret = false;
+            goto out;
+        }
+        (matched_info->param_type) |= EMPLOYEE_NAME;
+
         ret = check_name_dep_pos_validity(buffer, len);
         if (!ret) {
             goto out;
         }
 
-        strncpy(info->name, buffer, len);
-        info->name[len] = '\0';
+        strncpy(matched_info->info.name, buffer, len);
+        matched_info->info.name[len] = '\0';
     }
 
     //部门
     if (type == EMPLOYEE_DEPARTMENT) {
+        if (matched_info->param_type & EMPLOYEE_DEPARTMENT) {
+            LOG_ERR("Cannot set same department over one time!");
+            ret = false;
+            goto out;
+        }
+        (matched_info->param_type) |= EMPLOYEE_DEPARTMENT;
+
         ret = check_name_dep_pos_validity(buffer, len);
         if (!ret) {
             goto out;
         }
 
-        strncpy(info->department, buffer, len);
-        info->department[len] = '\0';
+        strncpy(matched_info->info.department, buffer, len);
+        matched_info->info.department[len] = '\0';
     }
 
     //职位
     if (type == EMPLOYEE_POSITION) {
+        if (matched_info->param_type & EMPLOYEE_POSITION) {
+            LOG_ERR("Cannot set same position over one time!");
+            ret = false;
+            goto out;
+        }
+        (matched_info->param_type) |= EMPLOYEE_POSITION;
+
         ret = check_name_dep_pos_validity(buffer, len);
         if (!ret) {
             goto out;
         }
-        strncpy(info->position, buffer, len);
-        info->position[len] = '\0';
+        strncpy(matched_info->info.position, buffer, len);
+        matched_info->info.position[len] = '\0';
+    }
+
+out:
+    return ret;
+}
+
+static bool convert_cmd_param_helper(int param_cnt, char* param_val, matched_info_type_t* matched_info)
+{
+    bool ret = false;
+    int opt;
+    const char* optstring = "i:n:d:D:p:s:"; //
+
+    optind = 1; //令全局变量optind=1,使得getopt从数组的index=1处开始检索
+    while ((opt = getopt(param_cnt, param_val, optstring)) != -1) {
+        switch (opt) {
+        case 'i':
+            LOG_DEBUG("opt is i, oprarg is: %s\n", optarg);
+
+            ret = convert_param_to_info(optarg, strlen(optarg), matched_info, EMPLOYEE_WORKID);
+            if (!ret) {
+                goto out;
+            }
+
+            break;
+        case 'n':
+            LOG_DEBUG("opt is n, oprarg is: %s\n", optarg);
+
+            ret = convert_param_to_info(optarg, strlen(optarg), matched_info, EMPLOYEE_NAME);
+            if (!ret) {
+                goto out;
+            }
+
+            break;
+        case 'd':
+            LOG_DEBUG("opt is d, oprarg is: %s\n", optarg);
+
+            ret = convert_param_to_info(optarg, strlen(optarg), matched_info, EMPLOYEE_DATE);
+            if (!ret) {
+                goto out;
+            }
+
+            break;
+        case 'D':
+            LOG_DEBUG("opt is D, oprarg is: %s\n", optarg);
+
+            ret = convert_param_to_info(optarg, strlen(optarg), matched_info, EMPLOYEE_DEPARTMENT);
+            if (!ret) {
+                goto out;
+            }
+
+            break;
+        case 'p':
+            LOG_DEBUG("opt is p, oprarg is: %s\n", optarg);
+
+            ret = convert_param_to_info(optarg, strlen(optarg), matched_info, EMPLOYEE_POSITION);
+            if (!ret) {
+                goto out;
+            }
+
+            break;
+        case 's':
+            LOG_DEBUG("opt is s, oprarg is: %s\n", optarg);
+            ret = convert_param_to_sort_type(optarg, strlen(optarg), &(matched_info->sort_type));
+            if (!ret) {
+                goto out;
+            }
+            break;
+        case '?':
+            LOG_ERR("error optopt: %c\n", optopt);
+            LOG_ERR("error opterr: %d\n", opterr);
+            break;
+        }
     }
 
 out:
@@ -349,12 +456,10 @@ out:
  */
 static bool convert_cmd_param(const char* command, int param_index, int len, matched_info_type_t* matched_info)
 {
-
-    int space_cnt = 0, start_index = 0;
-    bool param_flag = false;
     bool ret = false;
-    char buffer[MAX_CHAR_BUFFER_LEN] = { 0 };
-    info_element_type tmp_type = 0;
+    char *out_str = NULL, *tmp_str = NULL, *dim = "\' \'\'\t\'\'\n\'"; //分隔符为空格或制表符或换行符
+    int param_cnt = 1;
+    char* param_val[2 * MAX_PARAM_NUM + 1] = { 0 };
 
     //判空
     if (matched_info == NULL) {
@@ -362,58 +467,36 @@ static bool convert_cmd_param(const char* command, int param_index, int len, mat
         goto out;
     }
 
-    //分割参数 如 -i 12345 -n Zhangsan
-    for (int i = param_index; i < len; i++) {
-        // '-' 代表新的参数的起始位置
-        if (command[i] == '-') {
-            start_index = i;
-            param_flag = true;
+    //分割参数
+    out_str = strtok_r((char*)command, dim, &tmp_str);
+    while (out_str != NULL) {
+        if (param_cnt == (2 * MAX_PARAM_NUM + 1)) {
+            LOG_ERR("Input too many params.");
+            goto out;
         }
 
-        // 记录空格
-        if (command[i] == ' ' || command[i] == '\n') {
-            space_cnt++;
+        if (((param_cnt % 2) != 0) && (out_str[0] != '-')) {
+            LOG_ERR("Input too many values for one param type.");
+            goto out;
         }
 
-        // 参数结尾
-        if ((space_cnt == 2) && param_flag) {
-            int param_len = i - start_index - 2;
-            int sort_flag = 0;
+        param_val[param_cnt] = (char*)malloc(MAX_CHAR_BUFFER_LEN);
+        if (param_val[param_cnt] == NULL) {
+            LOG_ERR("malloc for param_val[%d] failed.", param_cnt);
+        };
 
-            //检查参数
-            ret = check_cmd_param(command + start_index + 1, param_len, &tmp_type, &sort_flag);
-            if (!ret) {
-                LOG_INFO("Input invalid element format.");
-                goto out;
-            }
+        memset(param_val[param_cnt], 0, MAX_CHAR_BUFFER_LEN);
+        strncpy(param_val[param_cnt], out_str, strlen(out_str));
+        LOG_DEBUG("param_val[%d]=%s", param_cnt, param_val[param_cnt]);
 
-            //记录参数
-            memset(buffer, 0, MAX_CHAR_BUFFER_LEN);
-            strncpy(buffer, command + start_index + 3, param_len);
-            buffer[param_len - 1] = '\0';
+        out_str = strtok_r(NULL, dim, &tmp_str);
+        param_cnt++;
+    }
 
-            //判断是否排序
-            if (sort_flag == 1) {
-                LOG_INFO("sort type = %s", buffer);
-                ret = convert_param_to_sort_type(buffer, strlen(buffer), &(matched_info->sort_type));
-                if (!ret) {
-                    goto out;
-                }
-                sort_flag = 0;
-                continue;
-            }
-
-            //转化参数
-            ret = convert_param_to_info(buffer, strlen(buffer), &(matched_info->info), tmp_type);
-            if (!ret) {
-                goto out;
-            }
-            //记录参数类型
-            (matched_info->param_type) |= tmp_type;
-
-            space_cnt = 0;
-            param_flag = false;
-        }
+    //转换参数
+    ret = convert_cmd_param_helper(param_cnt, param_val, matched_info);
+    if (!ret) {
+        goto out;
     }
 
 out:
@@ -872,4 +955,3 @@ bool parse_command(const char* command, int len) /* 不要用首字母 */
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
