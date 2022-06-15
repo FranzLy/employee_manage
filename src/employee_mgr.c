@@ -14,6 +14,11 @@ bool insert_one_employee(const employee_info_type_t* info)
         return false;
     }
 
+    if(s_hash_table->count == MAX_EMPLOYEE_NUM) {
+        LOG_WARN("Up to max employee num %d, cannot add one more.", MAX_EMPLOYEE_NUM);
+        return false;
+    }
+
     memset(&node, 0, sizeof(hash_node_t));
     memcpy(&(node.info), info, sizeof(employee_info_type_t));
     node.next = NULL;
@@ -22,6 +27,7 @@ bool insert_one_employee(const employee_info_type_t* info)
         LOG_ERR("Insert hash node to hash table failed.");
         return false;
     }
+    LOG_DEBUG("after insert , hash table count = %d\n", s_hash_table->count);
 
     return true;
 }
@@ -96,7 +102,7 @@ bool modify_one_employee_info(employee_info_type_t* info, info_element_type type
  *@param [in]work_id 工号
  *@return true 成功 false 失败
  */
-bool find_one_employee_by_id(const char* work_id)
+static bool find_one_employee_by_id(const char* work_id)
 {
     hash_node_t* node = NULL;
 
@@ -142,7 +148,7 @@ bool find_employee_by_type(matched_info_type_t* matched_info)
         return false;
     }
 
-    if (matched_info->sort_type != 0) {
+    if (matched_info->sort_type != EMPLOYEE_INVALID) {
         //排序后输出
         sort_matched_info(matched_info->sort_type);
     }

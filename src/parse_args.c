@@ -1,390 +1,49 @@
 #include "parse_args.h"
 #include <time.h>
 
-/////////////////////////////////////解析命令的辅助函数///////////////////////////////////
-
-/*
- *@brief 解析用户输入单行命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_command(const char* command, int len)/* 不要用首字母 */
-{
-    char cmd_name[10] = { 0 };
-    bool ret = false;
-
-    //参数判断
-    if (command == NULL) {
-        LOG_WARN("Input content is NULL.");
-        return ret;
-    }
-
-    //按命令分别进行处理
-    switch (command[0]) {
-    case 'a':
-        ret = parse_add_command(command, len);
-        break;
-    case 'd':
-        ret = parse_del_command(command, len);
-        break;
-    case 'm':
-        ret = parse_mod_command(command, len);
-        break;
-    case 'f':
-        ret = parse_find_command(command, len);
-        break;
-    case 's':
-        ret = parse_show_command(command, len);
-        break;
-    case 'e':
-        ret = parse_exit_command(command, len);
-        break;
-    case 'h':
-        ret = parse_help_command(command, len);
-        break;
-    case '\n':
-        ret = true;
-        break;
-    default:
-        LOG_WARN("First character is no sense.");
-        break;
-    }
-
-    return ret;
-}
-
-/*
- *@brief 解析用户输入添加命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_add_command(const char* add_cmd, int len)
-{
-    int param_index = 0;
-    bool ret = false;
-    matched_info_type_t matched_info = { 0 };
-
-    ret = check_cmd_name(add_cmd, len, ADD_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input add?");
-        show_add_usage();
-        goto out;
-    }
-
-    if (add_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for adding info as a employee.");
-        goto out;
-    }
-
-    ret = convert_cmd_param(add_cmd, param_index, len, &matched_info);
-    if (!ret) {
-        goto out;
-    }
-
-    if (matched_info.sort_type != 0) {
-        LOG_WARN("Add employee info cannot sort.");
-        ret = false;
-        goto out;
-    }
-
-    if (((matched_info.param_type & EMPLOYEE_WORKID) == 0) || ((matched_info.param_type & EMPLOYEE_NAME)) == 0) {
-        LOG_WARN("Add employee info must input work id and name.");
-        ret = false;
-        goto out;
-    }
-
-    ret = insert_one_employee(&(matched_info.info));
-    if (!ret) {
-        LOG_ERR("Add one employee info failed.");
-    }
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入删除命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_del_command(const char* del_cmd, int len)
-{
-    int param_index = 0;
-    bool ret = false;
-    matched_info_type_t matched_info = { 0 };
-
-    ret = check_cmd_name(del_cmd, len, DEL_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input del?");
-        show_del_usage();
-        goto out;
-    }
-
-    if (del_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for deleting info.");
-        goto out;
-    }
-
-    ret = convert_cmd_param(del_cmd, param_index, len, &matched_info);
-    if (!ret) {
-        goto out;
-    }
-
-    if (matched_info.sort_type != 0) {
-        LOG_WARN("Delete employee info cannot sort.");
-        ret = false;
-        goto out;
-    }
-
-    if (matched_info.param_type != EMPLOYEE_WORKID) {
-        LOG_WARN("Delete employee info only need work id.");
-        ret = false;
-        goto out;
-    }
-
-    ret = delete_one_employee_by_id(matched_info.info.work_id);
-    if (!ret) {
-        LOG_ERR("Delete one employee info failed.");
-    }
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入修改命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_mod_command(const char* mod_cmd, int len)
-{
-    int param_index = 0;
-    bool ret = false;
-    matched_info_type_t matched_info = { 0 };
-
-    ret = check_cmd_name(mod_cmd, len, MOD_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input mod?");
-        show_mod_usage();
-        goto out;
-    }
-
-    if (mod_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for modifying info.");
-        goto out;
-    }
-
-    ret = convert_cmd_param(mod_cmd, param_index, len, &matched_info);
-    if (!ret) {
-        goto out;
-    }
-
-    if (matched_info.sort_type != 0) {
-        LOG_WARN("Modify employee info cannot sort.");
-        ret = false;
-        goto out;
-    }
-
-    if ((((matched_info.param_type) & EMPLOYEE_WORKID) == 0) || (((matched_info.param_type) & ~EMPLOYEE_WORKID) == 0)) {
-        LOG_WARN("Modify employee info must input work id and one other employee info.");
-        ret = false;
-        goto out;
-    }
-
-    ret = modify_one_employee_info(&(matched_info.info), matched_info.param_type);
-    if (!ret) {
-        LOG_ERR("Modify one employee info failed.");
-    }
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入查找命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_find_command(const char* find_cmd, int len)
-{
-    int param_index = 0;
-    bool ret = false;
-    matched_info_type_t matched_info = { 0 };
-
-    ret = check_cmd_name(find_cmd, len, FIND_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input find?");
-        show_find_usage();
-        goto out;
-    }
-
-    if (find_cmd[param_index] != '-') {
-        LOG_WARN("Too few parameters for finding info.");
-        goto out;
-    }
-
-    ret = convert_cmd_param(find_cmd, param_index, len, &matched_info);
-    if (!ret) {
-        goto out;
-    }
-
-    if (matched_info.sort_type == (EMPLOYEE_WORKID | EMPLOYEE_DATE)) {
-        LOG_WARN("Only support one sort index.");
-        ret = false;
-        goto out;
-    }
-
-    ret = find_employee_by_type(&matched_info);
-    if (!ret) {
-        LOG_ERR("Find one employee info by type failed.");
-    }
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入全部显示命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_show_command(const char* show_cmd, int len)
-{
-    int param_index = 0;
-    bool ret = false;
-    int i;
-
-    ret = check_cmd_name(show_cmd, len, SHOW_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input show?");
-        show_trav_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
-        if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
-            LOG_WARN("Wrong command. If you want to show all the info, just input show.");
-            ret = false;
-            show_trav_usage();
-            goto out;
-        }
-    }
-
-    ret = show_all_employee_info();
-    if (!ret) {
-        LOG_ERR("Show all employee info failed.");
-    }
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入退出命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_exit_command(const char* exit_cmd, int len)
-{
-    int i, param_index = 0;
-    bool ret = false;
-
-    ret = check_cmd_name(exit_cmd, len, EXIT_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input exit?");
-        show_exit_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
-        if (!(exit_cmd[i] == ' ' || exit_cmd[i] == '\t' || exit_cmd[i] == '\n')) {
-            LOG_WARN("Wrong command. If you want to exit the program, just input exit.");
-            ret = false;
-            show_exit_usage();
-            goto out;
-        }
-    }
-
-    LOG_INFO("Exit the program with your command.");
-    exit(0);
-
-out:
-    return ret;
-}
-
-/*
- *@brief 解析用户输入帮助命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@return true 成功 false 失败
- */
-bool parse_help_command(const char* help_cmd, int len)
-{
-    int i, param_index = 0;
-    bool ret = false;
-
-    ret = check_cmd_name(help_cmd, len, HELP_COMMAND, &param_index);
-    if (!ret) {
-        LOG_WARN("Wrong command. Maybe you want to input help?");
-        show_help_usage();
-        goto out;
-    }
-
-    for (i = param_index; i < len; i++) {
-        if (!(help_cmd[i] == ' ' || help_cmd[i] == '\t' || help_cmd[i] == '\n')) {
-            ret = false;
-            LOG_WARN("Wrong command. If you want to get help, just input help.");
-            show_help_usage();
-            goto out;
-        }
-    }
-
-    ret = true;
-    show_usage();
-
-out:
-    return ret;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
 /////////////////////////////////////解析命令的辅助函数/////////////////////////////////////
 
-/*
- *@brief 检查输入的动作命令
- *@param [in]command 参数命令
- *@param [in]len     参数长度
- *@param [in]cmd_name     匹配的参数
- *@param [out]param_index     匹配命令后的下一个位置
- *@return true 成功 false 失败
- */
-bool check_cmd_name(const char* command, int len, char* cmd_name, int* param_index)
+static command_type_t check_cmd_type(const char* command, int len)
 {
-    bool ret = false;
-    int i = 0;
-    char buffer[MAX_CHAR_BUFFER_LEN] = { 0 };
+    command_type_t type = invalid_command;
 
-    for (; i < len; i++) {
-        if (command[i] == ' ' || command[i] == '\n') {
-            break;
-        }
-    }
-    strncpy(buffer, command, i);
-    buffer[i] = '\0';
-
-    if (i == strlen(cmd_name) && strncmp(buffer, cmd_name, strlen(cmd_name)) == 0) {
-        *param_index = i + 1;
-        ret = true;
+    if (len == strlen(ADD_COMMAND_STR) && strncmp(command, ADD_COMMAND_STR, len) == 0) {
+        type = add_command;
+        goto out;
     }
 
-    return ret;
+    if (len == strlen(DEL_COMMAND_STR) && strncmp(command, DEL_COMMAND_STR, len) == 0) {
+        type = del_command;
+        goto out;
+    }
+
+    if (len == strlen(MOD_COMMAND_STR) && strncmp(command, MOD_COMMAND_STR, len) == 0) {
+        type = mod_command;
+        goto out;
+    }
+
+    if (len == strlen(FIND_COMMAND_STR) && strncmp(command, FIND_COMMAND_STR, len) == 0) {
+        type = find_command;
+        goto out;
+    }
+
+    if (len == strlen(SHOW_COMMAND_STR) && strncmp(command, SHOW_COMMAND_STR, len) == 0) {
+        type = show_command;
+        goto out;
+    }
+
+    if (len == strlen(EXIT_COMMAND_STR) && strncmp(command, EXIT_COMMAND_STR, len) == 0) {
+        type = exit_command;
+        goto out;
+    }
+
+    if (len == strlen(HELP_COMMAND_STR) && strncmp(command, HELP_COMMAND_STR, len) == 0) {
+        type = help_command;
+        goto out;
+    }
+
+out:
+    return type;
 }
 
 /*
@@ -395,7 +54,7 @@ bool check_cmd_name(const char* command, int len, char* cmd_name, int* param_ind
  *@param [out]sort_flag     是否排序
  *@return true 成功 false 失败
  */
-bool check_cmd_param(const char* param, int len, info_element_type* elem_type, int* sort_flag)
+static bool check_cmd_param(const char* param, int len, info_element_type* elem_type, int* sort_flag)
 {
     bool ret = false;
     char buffer[MAX_CHAR_BUFFER_LEN] = { 0 };
@@ -450,7 +109,7 @@ bool check_cmd_param(const char* param, int len, info_element_type* elem_type, i
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-bool check_id_validity(const char* work_id_str, int len)
+static bool check_id_validity(const char* work_id_str, int len)
 {
     //工号要求5位数
     if (len != WORK_ID_BUF_LEN - 1) {
@@ -474,7 +133,7 @@ bool check_id_validity(const char* work_id_str, int len)
  *@param [in]year month day 年月日
  *@return true 成功 false 失败
  */
-bool check_date_validity_helper(int year, int month, int day)
+static bool check_date_validity_helper(int year, int month, int day)
 {
     int month_buf[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }; //月份修正表
     time_t cur_time;
@@ -519,7 +178,7 @@ bool check_date_validity_helper(int year, int month, int day)
  *@param [out]date   保存的日期
  *@return true 成功 false 失败
  */
-bool check_date_validity(const char* date_str, int len, entry_date_type_t* date)
+static bool check_date_validity(const char* date_str, int len, entry_date_type_t* date)
 {
     int i, start_index = 0;
     int spot_cnt = 0;
@@ -578,7 +237,7 @@ bool check_date_validity(const char* date_str, int len, entry_date_type_t* date)
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-bool check_name_dep_pos_validity(const char* src_str, int len)
+static bool check_name_dep_pos_validity(const char* src_str, int len)
 {
     //要求全英文
     for (int i = 0; i < len; i++) {
@@ -592,6 +251,95 @@ bool check_name_dep_pos_validity(const char* src_str, int len)
 }
 
 /*
+ *@brief 记录输入的排序索引参数匹配的类型
+ *@param [in]buffer 参数命令
+ *@param [in]len     参数长度
+ *@param [out]type     排序类型
+ *@return true 成功 false 失败
+ */
+static bool convert_param_to_sort_type(const char* buffer, int len, info_element_type* type)
+{
+    bool ret = false;
+
+    //目前仅支持日期和工号排序
+    if (len == strlen(SORT_PARAM_WORKID) && (strncmp(buffer, SORT_PARAM_WORKID, len) == 0)) {
+        (*type) |= EMPLOYEE_WORKID;
+        ret = true;
+    } else if (len == strlen(SORT_PARAM_DATE) && (strncmp(buffer, SORT_PARAM_DATE, len) == 0)) {
+        (*type) |= EMPLOYEE_DATE;
+        ret = true;
+    }
+
+    return ret;
+}
+
+/*
+ *@brief 将输入的员工参数保存至结构体中，并记录参数类型
+ *@param [in]buffer 参数命令
+ *@param [in]len     参数长度
+ *@param [out]info   保存的结构体
+ *@param [in]type     参数类型
+ *@return true 成功 false 失败
+ */
+static bool convert_param_to_info(const char* buffer, int len, employee_info_type_t* info, info_element_type type)
+{
+    bool ret = false;
+
+    //工号
+    if (type == EMPLOYEE_WORKID) {
+        ret = check_id_validity(buffer, len);
+        if (!ret) {
+            goto out;
+        }
+        strncpy(info->work_id, buffer, len);
+        info->work_id[len] = '\0';
+    }
+
+    //日期
+    if (type == EMPLOYEE_DATE) {
+        ret = check_date_validity(buffer, len, &(info->date));
+        if (!ret) {
+            goto out;
+        }
+    }
+
+    //姓名
+    if (type == EMPLOYEE_NAME) {
+        ret = check_name_dep_pos_validity(buffer, len);
+        if (!ret) {
+            goto out;
+        }
+
+        strncpy(info->name, buffer, len);
+        info->name[len] = '\0';
+    }
+
+    //部门
+    if (type == EMPLOYEE_DEPARTMENT) {
+        ret = check_name_dep_pos_validity(buffer, len);
+        if (!ret) {
+            goto out;
+        }
+
+        strncpy(info->department, buffer, len);
+        info->department[len] = '\0';
+    }
+
+    //职位
+    if (type == EMPLOYEE_POSITION) {
+        ret = check_name_dep_pos_validity(buffer, len);
+        if (!ret) {
+            goto out;
+        }
+        strncpy(info->position, buffer, len);
+        info->position[len] = '\0';
+    }
+
+out:
+    return ret;
+}
+
+/*
  *@brief 将参数转化为适用的结构
  *@param [in]command 参数命令
  *@param [in]param_index     起始位置
@@ -599,9 +347,9 @@ bool check_name_dep_pos_validity(const char* src_str, int len)
  *@param [out]matched_info     匹配结果
  *@return true 成功 false 失败
  */
-bool convert_cmd_param(const char* command, int param_index, int len, matched_info_type_t* matched_info)
+static bool convert_cmd_param(const char* command, int param_index, int len, matched_info_type_t* matched_info)
 {
-    
+
     int space_cnt = 0, start_index = 0;
     bool param_flag = false;
     bool ret = false;
@@ -609,7 +357,7 @@ bool convert_cmd_param(const char* command, int param_index, int len, matched_in
     info_element_type tmp_type = 0;
 
     //判空
-    if(matched_info==NULL){
+    if (matched_info == NULL) {
         LOG_ERR("Input param is NULL.");
         goto out;
     }
@@ -672,101 +420,12 @@ out:
     return ret;
 }
 
-/*
- *@brief 记录输入的排序索引参数匹配的类型
- *@param [in]buffer 参数命令
- *@param [in]len     参数长度
- *@param [out]type     排序类型
- *@return true 成功 false 失败
- */
-bool convert_param_to_sort_type(const char* buffer, int len, info_element_type* type)
-{
-    bool ret = false;
-
-    //目前仅支持日期和工号排序
-    if (len == strlen(SORT_PARAM_WORKID) && (strncmp(buffer, SORT_PARAM_WORKID, len) == 0)) {
-        (*type) |= EMPLOYEE_WORKID;
-        ret = true;
-    } else if (len == strlen(SORT_PARAM_DATE) && (strncmp(buffer, SORT_PARAM_DATE, len) == 0)) {
-        (*type) |= EMPLOYEE_DATE;
-        ret = true;
-    }
-
-    return ret;
-}
-
-/*
- *@brief 将输入的员工参数保存至结构体中，并记录参数类型
- *@param [in]buffer 参数命令
- *@param [in]len     参数长度
- *@param [out]info   保存的结构体
- *@param [in]type     参数类型
- *@return true 成功 false 失败
- */
-bool convert_param_to_info(const char* buffer, int len, employee_info_type_t* info, info_element_type type)
-{
-    bool ret = false;
-
-    //工号
-    if (type == EMPLOYEE_WORKID) {
-        ret = check_id_validity(buffer, len);
-        if (!ret) {
-            goto out;
-        }
-        strncpy(info->work_id, buffer, len);
-        info->work_id[len] = '\0';
-    }
-
-    //日期
-    if (type == EMPLOYEE_DATE) {
-        ret = check_date_validity(buffer, len, &(info->date));
-        if (!ret) {
-            goto out;
-        }
-    }
-
-    //姓名
-    if (type == EMPLOYEE_NAME) {
-        ret = check_name_dep_pos_validity(buffer, len);
-        if (!ret) {
-            goto out;
-        }
-
-        strncpy(info->name, buffer, len);
-        info->name[len] = '\0';
-    }
-
-    //部门
-    if (type == EMPLOYEE_DEPARTMENT) {
-        ret = check_name_dep_pos_validity(buffer, len);
-        if (!ret) {
-            goto out;
-        }
-
-        strncpy(info->department, buffer, len);
-        info->department[len] = '\0';
-    }
-
-    //职位
-    if (type == EMPLOYEE_POSITION) {
-        ret = check_name_dep_pos_validity(buffer, len);
-        if (!ret) {
-            goto out;
-        }
-        strncpy(info->position, buffer, len);
-        info->position[len] = '\0';
-    }
-
-out:
-    return ret;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////用于显示程序用法的函数//////////////////////////////////
 
 ///> 显示添加用法
-void show_add_usage()
+static void show_add_usage()
 {
     LOG_INFO("--------------------Add one employee info:---------------------------");
     LOG_INFO("\t add -i work_id -n name [-d date] [-D department] [-p position]");
@@ -777,7 +436,7 @@ void show_add_usage()
 }
 
 ///> 显示删除用法
-void show_del_usage()
+static void show_del_usage()
 {
     LOG_INFO("--------------------Delete one employee info(by work_id):------------");
     LOG_INFO("\t del - i work_id ");
@@ -787,7 +446,7 @@ void show_del_usage()
 }
 
 ///> 显示修改用法
-void show_mod_usage()
+static void show_mod_usage()
 {
     LOG_INFO("--------------------Modify one employee info(except work_id):--------");
 
@@ -798,7 +457,7 @@ void show_mod_usage()
 }
 
 ///> 显示查找用法
-void show_find_usage()
+static void show_find_usage()
 {
     LOG_INFO("-------------------Find one employee info(also can sort):-------");
     LOG_INFO("\t find [-i work_id] [- n name] [-s date] [-s id] ");
@@ -812,7 +471,7 @@ void show_find_usage()
 }
 
 ///> 显示遍历用法
-void show_trav_usage()
+static void show_trav_usage()
 {
     LOG_INFO("------------------Show all employees info:-------------------- ");
     LOG_INFO("Examples: ");
@@ -821,7 +480,7 @@ void show_trav_usage()
 }
 
 ///> 显示退出用法
-void show_exit_usage()
+static void show_exit_usage()
 {
     LOG_INFO("------------------Exit the program----------------------------------- ");
     LOG_INFO("Examples: ");
@@ -830,7 +489,7 @@ void show_exit_usage()
 }
 
 ///> 显示帮助用法
-void show_help_usage()
+static void show_help_usage()
 {
     LOG_INFO("------------------Use help command----------------------------------- ");
     LOG_INFO("Examples: ");
@@ -839,7 +498,7 @@ void show_help_usage()
 }
 
 ///> 显示全部用法
-void show_usage()
+static void show_usage()
 {
     LOG_INFO("employee_manager usage:");
     show_add_usage();
@@ -850,3 +509,367 @@ void show_usage()
     show_help_usage();
     show_exit_usage();
 }
+
+/////////////////////////////////////解析命令的函数///////////////////////////////////
+
+/*
+ *@brief 解析用户输入添加命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_add_command(const char* add_cmd, int len)
+{
+    int i = 0, param_index = 0;
+    bool ret = false;
+    matched_info_type_t matched_info = { 0 };
+
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (add_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
+    }
+
+    //以'-'为参数起始标记
+    if (add_cmd[param_index] != '-') {
+        LOG_WARN("Too few parameters for adding info as a employee.");
+        show_add_usage();
+        goto out;
+    }
+
+    ret = convert_cmd_param(add_cmd, param_index, len, &matched_info);
+    if (!ret) {
+        goto out;
+    }
+
+    if (matched_info.sort_type != 0) {
+        LOG_WARN("Add employee info cannot sort.");
+        ret = false;
+        goto out;
+    }
+
+    if (((matched_info.param_type & EMPLOYEE_WORKID) == 0) || ((matched_info.param_type & EMPLOYEE_NAME)) == 0) {
+        LOG_WARN("Add employee info must input work id and name.");
+        ret = false;
+        goto out;
+    }
+
+    ret = insert_one_employee(&(matched_info.info));
+    if (!ret) {
+        LOG_ERR("Add one employee info failed.");
+    }
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入删除命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_del_command(const char* del_cmd, int len)
+{
+    int i = 0, param_index = 0;
+    bool ret = false;
+    matched_info_type_t matched_info = { 0 };
+
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (del_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
+    }
+
+    if (del_cmd[param_index] != '-') {
+        LOG_WARN("Too few parameters for deleting info.");
+        goto out;
+    }
+
+    ret = convert_cmd_param(del_cmd, param_index, len, &matched_info);
+    if (!ret) {
+        goto out;
+    }
+
+    if (matched_info.sort_type != 0) {
+        LOG_WARN("Delete employee info cannot sort.");
+        ret = false;
+        goto out;
+    }
+
+    if (matched_info.param_type != EMPLOYEE_WORKID) {
+        LOG_WARN("Delete employee info only need work id.");
+        ret = false;
+        goto out;
+    }
+
+    ret = delete_one_employee_by_id(matched_info.info.work_id);
+    if (!ret) {
+        LOG_ERR("Delete one employee info failed.");
+    }
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入修改命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_mod_command(const char* mod_cmd, int len)
+{
+    int i = 0, param_index = 0;
+    bool ret = false;
+    matched_info_type_t matched_info = { 0 };
+
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (mod_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
+    }
+
+    if (mod_cmd[param_index] != '-') {
+        LOG_WARN("Too few parameters for modifying info.");
+        goto out;
+    }
+
+    ret = convert_cmd_param(mod_cmd, param_index, len, &matched_info);
+    if (!ret) {
+        goto out;
+    }
+
+    if (matched_info.sort_type != 0) {
+        LOG_WARN("Modify employee info cannot sort.");
+        ret = false;
+        goto out;
+    }
+
+    if ((((matched_info.param_type) & EMPLOYEE_WORKID) == 0) || (((matched_info.param_type) & ~EMPLOYEE_WORKID) == 0)) {
+        LOG_WARN("Modify employee info must input work id and one other employee info.");
+        ret = false;
+        goto out;
+    }
+
+    ret = modify_one_employee_info(&(matched_info.info), matched_info.param_type);
+    if (!ret) {
+        LOG_ERR("Modify one employee info failed.");
+    }
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入查找命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_find_command(const char* find_cmd, int len)
+{
+    int i = 0, param_index = 0;
+    bool ret = false;
+    matched_info_type_t matched_info = { 0 };
+
+    //找到参数的命令跟着的参数的起始位置
+    for (; i < len; i++) {
+        if (find_cmd[i] == '-') {
+            param_index = i;
+            break;
+        }
+    }
+
+    if (find_cmd[param_index] != '-') {
+        LOG_WARN("Too few parameters for finding info.");
+        goto out;
+    }
+
+    ret = convert_cmd_param(find_cmd, param_index, len, &matched_info);
+    if (!ret) {
+        goto out;
+    }
+
+    if (matched_info.sort_type == (EMPLOYEE_WORKID | EMPLOYEE_DATE)) {
+        LOG_WARN("Only support one sort index.");
+        ret = false;
+        goto out;
+    }
+
+    ret = find_employee_by_type(&matched_info);
+    if (!ret) {
+        LOG_ERR("Find one employee info by type failed.");
+    }
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入全部显示命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_show_command(const char* show_cmd, int len)
+{
+    bool ret = false;
+    int i = 0;
+
+    //检查输入命令尾部，不需有参数
+    for (; i < len; i++) {
+        if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
+            LOG_WARN("Wrong command. If you want to show all the info, just input show.");
+            ret = false;
+            show_trav_usage();
+            goto out;
+        }
+    }
+
+    ret = show_all_employee_info();
+    if (!ret) {
+        LOG_ERR("Show all employee info failed.");
+    }
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入退出命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_exit_command(const char* exit_cmd, int len)
+{
+    int i = 0;
+    bool ret = false;
+
+    for (; i < len; i++) {
+        if (!(exit_cmd[i] == ' ' || exit_cmd[i] == '\t' || exit_cmd[i] == '\n')) {
+            LOG_WARN("Wrong command. If you want to exit the program, just input exit.");
+            ret = false;
+            show_exit_usage();
+            goto out;
+        }
+    }
+
+    LOG_INFO("Exit the program with your command.");
+    exit(0);
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入帮助命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+static bool parse_help_command(const char* help_cmd, int len)
+{
+    int i = 0;
+    bool ret = false;
+
+    for (; i < len; i++) {
+        if (!(help_cmd[i] == ' ' || help_cmd[i] == '\t' || help_cmd[i] == '\n')) {
+            ret = false;
+            LOG_WARN("Wrong command. If you want to get help, just input help.");
+            show_help_usage();
+            goto out;
+        }
+    }
+
+    ret = true;
+    show_usage();
+
+out:
+    return ret;
+}
+
+/*
+ *@brief 解析用户输入单行命令
+ *@param [in]command 参数命令
+ *@param [in]len     参数长度
+ *@return true 成功 false 失败
+ */
+bool parse_command(const char* command, int len) /* 不要用首字母 */
+{
+    char cmd_name[MAX_CHAR_BUFFER_LEN] = { 0 };
+    bool ret = false;
+    int i = 0, start_index = 0;
+    command_type_t cmd_type = invalid_command;
+
+    //参数判断
+    if (command == NULL) {
+        LOG_WARN("Input content is NULL.");
+        return ret;
+    }
+
+    //跳过前面的空白字符
+    for (; i < len; i++) {
+        if (!(command[i] == ' ' || command[i] == '\t' || command[i] == '\n')) {
+            break;
+        }
+    }
+    if (i == len) {
+        ret = true;
+        return ret;
+    }
+
+    //解析命令参数
+    start_index = i;
+    for (; i < len; i++) {
+        if (command[i] == ' ' || command[i] == '\t' || command[i] == '\n') {
+            break;
+        }
+    }
+    strncpy(cmd_name, command, i - start_index);
+    cmd_name[i - start_index] = '\0';
+    LOG_DEBUG("input command = %s\n", cmd_name);
+
+    //获取命令类型
+    cmd_type = check_cmd_type(cmd_name, strlen(cmd_name));
+
+    //按命令分别进行处理
+    switch (cmd_type) {
+    case add_command:
+        ret = parse_add_command(command + i, len - i);
+        break;
+    case del_command:
+        ret = parse_del_command(command + i, len - i);
+        break;
+    case mod_command:
+        ret = parse_mod_command(command + i, len - i);
+        break;
+    case find_command:
+        ret = parse_find_command(command + i, len - i);
+        break;
+    case show_command:
+        ret = parse_show_command(command + i, len - i);
+        break;
+    case exit_command:
+        ret = parse_exit_command(command + i, len - i);
+        break;
+    case help_command:
+        ret = parse_help_command(command + i, len - i);
+        break;
+    default:
+        LOG_WARN("Invalid command type.");
+        break;
+    }
+
+    return ret;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+

@@ -2,7 +2,7 @@
 
 ////////////////////////针对单个哈希链表的操作//////////////////////////////////////////////
 
-int hash_destory_node(hash_node_t* head)
+static int hash_destory_node(hash_node_t* head)
 {
     hash_node_t *cur = NULL, *next = NULL;
 

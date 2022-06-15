@@ -1,7 +1,61 @@
 #include "employee_utils.h"
 
-hash_node_t* s_matched_list; //匹配链表
-int s_matched_count = 0; //匹配的数目
+/*
+ *@brief 插入匹配链表
+ *@param [in]info 员工信息
+ */
+static void insert_matched_info(employee_info_type_t* info)
+{
+    hash_node_t *head, *prev;
+
+    //参数检查
+    if (info == NULL) {
+        LOG_ERR("insert_matched_info failed cause param is invalid.");
+        return;
+    }
+
+    //按照最大员工人数申请匹配数组
+    if (s_matched_arr == NULL) {
+        s_matched_arr = (employee_info_type_t**)malloc(sizeof(employee_info_type_t*) * MAX_EMPLOYEE_NUM);
+        if (s_matched_arr == NULL) {
+            LOG_ERR("malloc for s_matched_arr failed.");
+            return;
+        }
+        memset(s_matched_arr, 0, sizeof(employee_info_type_t*) * MAX_EMPLOYEE_NUM);
+    }
+
+    //记录匹配元素的地址
+    s_matched_arr[s_matched_count] = info;
+    s_matched_count++;
+}
+
+/*
+ *@brief 比较工号
+ *@param [in]first second 员工信息
+ */
+static int compare_work_id(employee_info_type_t** first, employee_info_type_t** second)
+{
+    return (atoi((*first)->work_id) > atoi((*second)->work_id));
+}
+
+/*
+ *@brief 比较日期
+ *@param [in]first second 员工信息
+ */
+static int compare_entry_date(employee_info_type_t** first, employee_info_type_t** second)
+{
+    entry_date_type_t *first_date = &((*first)->date), *second_date = &((*second)->date);
+
+    if (first_date->year != second_date->year) {
+        return (first_date->year > second_date->year);
+    }
+
+    if (first_date->month != second_date->month) {
+        return (first_date->month > second_date->month);
+    }
+
+    return (first_date->day >= second_date->day);
+}
 
 /*
  *@brief 比较员工信息的回调函数
@@ -11,7 +65,7 @@ int s_matched_count = 0; //匹配的数目
 void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matched_info)
 {
     bool matched = true;
-    info_element_type param_type, sort_type;
+    info_element_type param_type = EMPLOYEE_INVALID, sort_type = EMPLOYEE_INVALID;
     employee_info_type_t* cmp_info = NULL;
 
     if (info == NULL) {
@@ -26,7 +80,7 @@ void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matc
     sort_type = matched_info->sort_type;
     cmp_info = &(matched_info->info);
 
-    if (param_type == 0) {
+    if (param_type == EMPLOYEE_INVALID) {
         goto out;
     }
 
@@ -83,7 +137,7 @@ void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matc
 
 out:
     if (matched) {
-        if (sort_type == 0) {
+        if (sort_type == EMPLOYEE_INVALID) {
             //不需要排序，直接输出
             show_one_employee_info(info);
         } else {
@@ -94,127 +148,31 @@ out:
 }
 
 /*
- *@brief 插入匹配链表
- *@param [in]info 员工信息
- */
-void insert_matched_info(employee_info_type_t* info)
-{
-    hash_node_t *head, *prev;
-
-    //参数检查
-    if (info == NULL) {
-        LOG_ERR("insert_matched_info failed cause param is invalid.");
-    }
-
-    //插入数据
-    head = s_matched_list;
-    prev = head;
-    while (head) {
-        prev = head;
-        head = head->next;
-    }
-    if (head == NULL) {
-        hash_node_t* node = malloc(sizeof(hash_node_t));
-        if (NULL == node) {
-            free(node);
-            node = NULL;
-            LOG_ERR("insert_matched_info: malloc failed.");
-            exit(1);
-        }
-
-        memset(node, 0, sizeof(hash_node_t));
-        memcpy(&(node->info), info, sizeof(employee_info_type_t));
-        node->next = NULL;
-
-        if (prev == NULL) {
-            s_matched_list = node;
-        } else {
-            prev->next = node;
-        }
-    }
-    s_matched_count++;
-}
-
-/*
  *@brief 排序匹配信息
  *@param [in]sort_type 排序类型
  */
 void sort_matched_info(info_element_type sort_type)
 {
-    hash_node_t *cur, *next;
-    employee_info_type_t* matched_arr;
     int i = 0;
 
-    if (s_matched_list == NULL || s_matched_count == 0) {
+    if (s_matched_arr == NULL || s_matched_count == 0) {
         return;
-    }
-
-    //将匹配的元素保存在数组中
-    matched_arr = (employee_info_type_t*)malloc(s_matched_count * sizeof(employee_info_type_t));
-    memset(matched_arr, 0, s_matched_count * sizeof(employee_info_type_t));
-    if (matched_arr == NULL) {
-        LOG_ERR("sort_matched_info: malloc failed.");
-        free(matched_arr);
-        exit(1);
-    }
-    cur = s_matched_list;
-    while (cur) {
-        memcpy(&(matched_arr[i]), &(cur->info), sizeof(employee_info_type_t));
-        cur = cur->next;
-        i++;
     }
 
     //排序后输出
     if (sort_type & EMPLOYEE_WORKID) {
-        qsort(matched_arr, s_matched_count, sizeof(employee_info_type_t), compare_work_id);
+        qsort(s_matched_arr, s_matched_count, sizeof(employee_info_type_t*), compare_work_id);
     } else if (sort_type & EMPLOYEE_DATE) {
-        qsort(matched_arr, s_matched_count, sizeof(employee_info_type_t), compare_entry_date);
+        qsort(s_matched_arr, s_matched_count, sizeof(employee_info_type_t*), compare_entry_date);
     }
-    for (i = 0; i < s_matched_count; i++) {
-        show_one_employee_info(&(matched_arr[i]));
+    for (; i < s_matched_count; i++) {
+        show_one_employee_info(s_matched_arr[i]);
     }
 
     //清空数组
-    free(matched_arr);
-    matched_arr = NULL;
-
-    //清空链表
-    cur = s_matched_list;
-    while (cur) {
-        next = cur->next;
-        free(cur);
-        cur = NULL;
-        cur = next;
-    }
+    free(s_matched_arr);
+    s_matched_arr = NULL;
     s_matched_count = 0;
-}
-
-/*
- *@brief 比较工号
- *@param [in]first second 员工信息
- */
-int compare_work_id(employee_info_type_t* first, employee_info_type_t* second)
-{
-    return (atoi(first->work_id) > atoi(second->work_id));
-}
-
-/*
- *@brief 比较日期
- *@param [in]first second 员工信息
- */
-int compare_entry_date(employee_info_type_t* first, employee_info_type_t* second)
-{
-    entry_date_type_t *first_date = &(first->date), *second_date = &(second->date);
-
-    if (first_date->year != second_date->year) {
-        return (first_date->year > second_date->year);
-    }
-
-    if (first_date->month != second_date->month) {
-        return (first_date->month > second_date->month);
-    }
-
-    return (first_date->day >= second_date->day);
 }
 
 /*

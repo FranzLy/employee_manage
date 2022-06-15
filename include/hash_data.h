@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: liyu
+ * @Date: 2022-06-04 09:26:44
+ * @LastEditors: 
+ * @LastEditTime: 2022-06-15 06:04:06
+ */
 #ifndef HASH_DATA_H
 #define HASH_DATA_H
 
@@ -23,12 +31,6 @@ typedef struct _hash_table_t {
     unsigned int size;
     unsigned int count;
 } hash_table_t;
-
-////////////////////////针对单个哈希链表的操作//////////////////////////////////////////////
-
-int hash_destory_node(hash_node_t* head);
-
-//////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////针对整张哈希表的操作//////////////////////////////////////////////
 

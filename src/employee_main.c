@@ -5,10 +5,8 @@
 
 int main(int argc, char* argv[])
 {
-#ifdef DEBUG_MODE
     LOG_DEBUG("Start debug mode:\n");
-#endif
-
+    
     char input[BUFSIZ];
     int ret_val = -1;
 
