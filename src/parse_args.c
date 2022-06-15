@@ -9,7 +9,7 @@
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-bool parse_command(const char* command, int len)
+bool parse_command(const char* command, int len)/* 不要用首字母 */
 {
     char cmd_name[10] = { 0 };
     bool ret = false;
