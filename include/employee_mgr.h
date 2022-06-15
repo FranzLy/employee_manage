@@ -6,7 +6,6 @@
 #include "hash_data.h"
 #include "employee_utils.h"
 
-hash_table_t* s_hash_table;
 
 ///> 插入一个员工信息
 bool insert_one_employee(const employee_info_type_t* info);

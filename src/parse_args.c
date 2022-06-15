@@ -42,7 +42,7 @@ bool parse_command(const char* command, int len) /* 不要用首字母 */
     }
     strncpy(cmd_name, command, i - start_index);
     cmd_name[i - start_index] = '\0';
-    printf("command = %s\n", cmd_name);
+    LOG_DEBUG("input command = %s\n", cmd_name);
 
     //获取命令类型
     cmd_type = check_cmd_type(cmd_name, strlen(cmd_name));
@@ -289,6 +289,7 @@ bool parse_show_command(const char* show_cmd, int len)
     bool ret = false;
     int i = 0;
 
+    //检查输入命令尾部，不需有参数
     for (; i < len; i++) {
         if (!(show_cmd[i] == ' ' || show_cmd[i] == '\t' || show_cmd[i] == '\n')) {
             LOG_WARN("Wrong command. If you want to show all the info, just input show.");
@@ -302,8 +303,6 @@ bool parse_show_command(const char* show_cmd, int len)
     if (!ret) {
         LOG_ERR("Show all employee info failed.");
     }
-    printf("ret = %d\n",i);
-
 
 out:
     return ret;

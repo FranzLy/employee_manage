@@ -3,6 +3,8 @@
 
 #define ESTABLISHED_YEAR (2000) //公司成立年份
 
+#define MAX_EMPLOYEE_NUM (10000) //最大员工数目
+
 #define MAX_CHAR_BUFFER_LEN (128)
 #define MAX_NAME_LEN MAX_CHAR_BUFFER_LEN
 #define MAX_DEPARTMENT_LEN MAX_CHAR_BUFFER_LEN
@@ -27,6 +29,7 @@ typedef struct _employee_info_type_t {
 
 ///> 员工信息类型
 typedef enum _info_element_type {
+    EMPLOYEE_INVALID = 0,
     EMPLOYEE_WORKID = 1 << 0,
     EMPLOYEE_NAME = 1 << 1,
     EMPLOYEE_DATE = 1 << 2,

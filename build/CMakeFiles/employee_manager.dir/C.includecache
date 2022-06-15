@@ -60,9 +60,13 @@ string.h
 unistd.h
 -
 
-/home/ly/桌面/fengyu/1st/fengyu/employee_manager/src/parse_args.c
+/home/ly/桌面/fengyu/1st/fengyu/employee_manager/src/employee_main.c
 parse_args.h
 /home/ly/桌面/fengyu/1st/fengyu/employee_manager/src/parse_args.h
-time.h
+errno.h
+-
+stdio.h
+-
+unistd.h
 -
 

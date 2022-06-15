@@ -5,6 +5,12 @@
 #include "hash_data.h"
 #include <stdbool.h>
 
+static hash_table_t* s_hash_table;
+
+static hash_node_t* s_matched_list; //匹配链表
+static employee_info_type_t** s_matched_arr = NULL;
+static int s_matched_count = 0; //匹配的数目
+
 ///> 比较员工信息
 void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matched_info);
 
@@ -15,10 +21,10 @@ void insert_matched_info(employee_info_type_t* info);
 void sort_matched_info(info_element_type sort_type);
 
 ///> 比较工号
-int compare_work_id(employee_info_type_t* first, employee_info_type_t* second);
+int compare_work_id(employee_info_type_t** first, employee_info_type_t** second);
 
 ///> 比较日期
-int compare_entry_date(employee_info_type_t* first, employee_info_type_t* second);
+int compare_entry_date(employee_info_type_t** first, employee_info_type_t** second);
 
 ///> 显示单个员工信息
 void show_one_employee_info(employee_info_type_t* info);
