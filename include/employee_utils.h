@@ -5,10 +5,9 @@
 #include "hash_data.h"
 #include <stdbool.h>
 
-static hash_table_t* s_hash_table;
+static hash_table_t* s_hash_table; //存储员工信息的全局哈希表
 
-static hash_node_t* s_matched_list; //匹配链表
-static employee_info_type_t** s_matched_arr = NULL;
+static employee_info_type_t** s_matched_arr = NULL; // 匹配数组
 static int s_matched_count = 0; //匹配的数目
 
 ///> 比较员工信息
