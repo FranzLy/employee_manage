@@ -885,7 +885,7 @@ out:
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-bool parse_command(const char* command, int len) /* 不要用首字母 */
+bool parse_command(const char* command, int len)
 {
     char cmd_name[MAX_CHAR_BUFFER_LEN] = { 0 };
     bool ret = false;
@@ -911,12 +911,13 @@ bool parse_command(const char* command, int len) /* 不要用首字母 */
 
     //解析命令参数
     start_index = i;
-    for (; i < len; i++) {
+    for (i = start_index + 1; i < len; i++) {
         if (command[i] == ' ' || command[i] == '\t' || command[i] == '\n') {
             break;
         }
     }
-    strncpy(cmd_name, command, i - start_index);
+    LOG_DEBUG(" start_index = %d, i = %d \n", start_index, i);
+    strncpy(cmd_name, command + start_index, i - start_index);
     cmd_name[i - start_index] = '\0';
     LOG_DEBUG("input command = %s\n", cmd_name);
 
