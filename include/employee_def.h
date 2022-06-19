@@ -1,3 +1,9 @@
+/*
+ * @Descripttion: 定义员工信息必要结构
+ * @version:
+ * @Author: liyu
+ * @Date: 2022-06-15 05:27:18
+ */
 #ifndef EMPLOYEE_DEF_H
 #define EMPLOYEE_DEF_H
 

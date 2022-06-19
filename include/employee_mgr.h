@@ -1,11 +1,16 @@
+/*
+ * @Descripttion: 管理员工信息
+ * @version:
+ * @Author: liyu
+ * @Date: 2022-06-15 05:27:18
+ */
 #ifndef EMPLOYEE_MGR_H
 #define EMPLOYEE_MGR_H
 
-#include "common.h"
+#include "common/log.h"
 #include "employee_def.h"
-#include "hash_data.h"
 #include "employee_utils.h"
-
+#include "hash_data.h"
 
 ///> 插入一个员工信息
 bool insert_one_employee(const employee_info_type_t* info);

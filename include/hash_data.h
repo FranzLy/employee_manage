@@ -1,20 +1,18 @@
 /*
- * @Descripttion: 
- * @version: 
+ * @Descripttion:哈希数据存储
+ * @version:
  * @Author: liyu
  * @Date: 2022-06-04 09:26:44
- * @LastEditors: 
- * @LastEditTime: 2022-06-15 06:04:06
  */
 #ifndef HASH_DATA_H
 #define HASH_DATA_H
 
-#include "common.h"
+#include "common/log.h"
 #include "employee_def.h"
-#include <stddef.h>
 #include <malloc.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define HASH_SIZE (1999) //哈希表的长度，质数
 #define ADDR_SIZE (sizeof(char*))

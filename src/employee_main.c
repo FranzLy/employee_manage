@@ -1,3 +1,9 @@
+/*
+ * @Descripttion: 主函数，循环读取用户输入
+ * @version:
+ * @Author: liyu
+ * @Date: 2022-06-15 05:27:18
+ */
 #include "parse_args.h"
 #include <errno.h>
 #include <stdio.h>

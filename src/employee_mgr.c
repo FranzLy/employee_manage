@@ -1,3 +1,10 @@
+/*
+ * @Descripttion: 管理员工信息
+ * @version:
+ * @Author: liyu
+ * @Date: 2022-06-15 05:27:18
+ */
+
 #include "employee_mgr.h"
 
 /*
@@ -14,7 +21,7 @@ bool insert_one_employee(const employee_info_type_t* info)
         return false;
     }
 
-    if(s_hash_table->count == MAX_EMPLOYEE_NUM) {
+    if (s_hash_table->count == MAX_EMPLOYEE_NUM) {
         LOG_WARN("Up to max employee num %d, cannot add one more.", MAX_EMPLOYEE_NUM);
         return false;
     }
@@ -156,7 +163,7 @@ bool find_employee_by_type(matched_info_type_t* matched_info)
     return true;
 }
 
-/* 
+/*
  *@brief 遍历员工信息
  *@return true 成功 false 失败
  */
