@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     //循环读取用户输入
     while (true) {
 
+        //读取输入
         memset(input, 0, BUFSIZ);
         ret_val = read(STDIN_FILENO, input, BUFSIZ);
         if (ret_val < 0) {
@@ -31,6 +32,7 @@ int main(int argc, char* argv[])
             exit(1);
         }
 
+        //解析命令
         if (!parse_command(input, ret_val)) {
             break;
         }

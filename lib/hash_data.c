@@ -220,7 +220,7 @@ hash_traverse_all(hash_table_t* hash_table,void (*func)(employee_info_type_t*, m
     for (i = 0; i < hash_table->size; i++) {
         cur = hash_table->table[i];
 
-        while(cur){
+        while(cur){//加入跳出机制
             func(&(cur->info),matched_info);
             cur = cur->next;
         }

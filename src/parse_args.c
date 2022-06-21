@@ -198,7 +198,7 @@ static bool check_date_validity(const char* date_str, int len, entry_date_type_t
  *@param [in]len     参数长度
  *@return true 成功 false 失败
  */
-static bool check_name_dep_pos_validity(const char* src_str, int len)
+static bool check_name_dep_pos_validity(const char* src_str, int len)//str
 {
     //要求全英文
     for (int i = 0; i < len; i++) {
@@ -419,7 +419,7 @@ static bool convert_cmd_param(const char* command, int param_index, int len, mat
 {
     bool ret = false;
     char *out_str = NULL, *tmp_str = NULL, *dim = "\' \'\'\t\'\'\n\'"; //分隔符为空格或制表符或换行符
-    int param_cnt = 1; // getopt函数的optind=，会从数组的index=1处开始检索
+    int param_cnt = 1; // getopt函数的optind=1，会从数组的index=1处开始检索 //index
     char* param_val[2 * MAX_PARAM_NUM + 1] = { 0 }; //最大输入参数和值的个数
 
     //判空
@@ -446,6 +446,7 @@ static bool convert_cmd_param(const char* command, int param_index, int len, mat
         param_val[param_cnt] = (char*)malloc(MAX_CHAR_BUFFER_LEN);
         if (param_val[param_cnt] == NULL) {
             LOG_ERR("malloc for param_val[%d] failed.", param_cnt);
+            goto out;
         };
         memset(param_val[param_cnt], 0, MAX_CHAR_BUFFER_LEN);
         strncpy(param_val[param_cnt], out_str, strlen(out_str));
@@ -727,7 +728,7 @@ static bool parse_find_command(const char* find_cmd, int len)
     matched_info_type_t matched_info = { 0 };
 
     //找到参数的命令跟着的参数的起始位置，以'-'为参数起始标记
-    for (; i < len; i++) {
+    for (; i < len; i++) {//宏定义
         if (find_cmd[i] == '-') {
             param_index = i;
             break;

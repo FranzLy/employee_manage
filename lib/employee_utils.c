@@ -69,7 +69,7 @@ static int compare_entry_date(employee_info_type_t** first, employee_info_type_t
  *param [in]info 存储的员工信息
  *param [in]matched_info 输入的参数
  */
-void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matched_info)
+void compare_employee_info(employee_info_type_t* info, matched_info_type_t* matched_info)//函数命名——回调
 {
     bool matched = true;
     info_element_type param_type = EMPLOYEE_INVALID, sort_type = EMPLOYEE_INVALID;
@@ -148,7 +148,7 @@ out:
             //不需要排序，直接输出
             show_one_employee_info(info);
         } else {
-            //需要排序，则需将元素插入匹配链表中
+            //需要排序，则需将元素插入匹配数组中
             insert_matched_info(info);
         }
     }

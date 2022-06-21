@@ -148,6 +148,8 @@ static bool find_one_employee_by_id(const char* work_id)
  */
 bool find_employee_by_type(matched_info_type_t* matched_info)
 {
+    //匹配内存申请释放
+
     //传入指针参数检查非空
     if (matched_info == NULL) {
         return false;
