@@ -38,6 +38,8 @@
 │   └── unit_test               ->单元测试代码
 ├── valgrind_report.log         ->内存检测报告
 └── version                     ->版本说明
+├── 课程文档
+└── 作业.txt
 
 # 编译执行
     mkdir build && cd build
