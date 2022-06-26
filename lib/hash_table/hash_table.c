@@ -315,7 +315,7 @@ int hash_destory(hash_table_t* hash_table)
     //遍历整表，并释放每个节点链上的空间
     for (i = 0; i < hash_table->size; i++) {
         head = hash_table->table[i];
-        if (head == NULL /* || head->next == NULL */) {
+        if (head == NULL) {
             continue;
         }
 
