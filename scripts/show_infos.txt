@@ -1,0 +1,20 @@
+#利用gdb输出所有信息
+define show_all_info
+    set confirm off
+    set $ht_instance = ht
+    set $i = ((struct hashtable *)$ht_instance)->capacity
+    set $j = 0
+
+    while ($j < $i)
+        set $bk = &($ht_instance->buckets[$j])
+        set $e = ((bucket_t *)$bk)->head
+        
+        while ($e != 0)
+            set $v = ((struct entry *)$e)->value
+            printf "id: %llu, entry_time: %llu, department: %s, title: %s, name: %s\n", ((employee_info_t *)$v)->id, ((employee_info_t *)$v)->entry_time, ((employee_info_t *)$v)->department, ((employee_info_t *)$v)->title, ((employee_info_t *)$v)->name
+            set $e = $e->next
+        end
+
+        set $j++
+    end
+end

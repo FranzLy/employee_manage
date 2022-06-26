@@ -7,6 +7,9 @@
 #ifndef LOG_H
 #define LOG_H
 
+/*
+ *@brief 日志等级
+ */
 typedef enum _log_level_t {
     LOG_LEVEL_ERR = 0,
     LOG_LEVEL_WARN,
@@ -15,6 +18,9 @@ typedef enum _log_level_t {
     LOG_LEVEL_MAX,
 } log_level_t;
 
+/*
+ *@brief 判断日志等级是否有效
+ */
 #define IS_VALID_LOG_LEVEL(log_level)  (log_level >= LOG_LEVEL_ERR && log_level < LOG_LEVEL_MAX)
 
 /*

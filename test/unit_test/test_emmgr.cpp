@@ -25,9 +25,6 @@ TEST(Test_EmployeeMgr, test_employee_mgr)
     ///>添加员工
     ASSERT_EQ(insert_one_employee(NULL) == false, true);
 
-    ///> 删除员工
-    //ASSERT_EQ(delete_one_employee(00001) == false, true);
-
     ///> 修改员工
     ASSERT_EQ(modify_one_employee_info(NULL) == false, true);
 

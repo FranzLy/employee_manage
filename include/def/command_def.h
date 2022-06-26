@@ -77,6 +77,7 @@ typedef struct _command_info_t {
     command_exec_func exec;
 } command_info_t;
 
+///> 初始化命令,绑定回调函数
 #define INIT_COMMAND(_cmd_info, _cmd_type, _name, _exec) \
     do {                                                 \
         _cmd_info[_cmd_type].name = _name;                 \

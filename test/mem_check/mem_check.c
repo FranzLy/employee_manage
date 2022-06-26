@@ -1,5 +1,5 @@
 /*
- * @Descripttion: 主函数，循环读取用户输入
+ * @Descripttion: 内存检测函数，模拟读取用户输入
  * @version:
  * @Author: liyu
  * @Date: 2022-06-15 05:27:18

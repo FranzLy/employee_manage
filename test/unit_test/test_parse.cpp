@@ -211,7 +211,7 @@ TEST_F(Test_Cli, test_parse_command)
     // 1.换行符
     ASSERT_TRUE(process_command_request("\n", 1));
 
-    // 2.添加命令
+    // 2.命令
     bzero(user_input, BUFSIZ);
     snprintf(user_input, BUFSIZ, "%s\n", "find -i 11111");//查找不存在的员工:失败
     ASSERT_FALSE(process_command_request(user_input, strlen(user_input)));
@@ -291,10 +291,6 @@ TEST_F(Test_Cli, test_parse_command)
     bzero(user_input, BUFSIZ);
     snprintf(user_input, BUFSIZ, "%s\n", "show");//遍历
     ASSERT_TRUE(process_command_request(user_input, strlen(user_input)));
-
-    /* bzero(user_input, BUFSIZ);
-    snprintf(user_input, BUFSIZ, "%s\n", "exit");
-    ASSERT_TRUE(process_command_request(user_input, strlen(user_input))); */
 
     clear_all_employee_info();//清理员工信息
 }

@@ -11,11 +11,11 @@
 
 #define MAX_EMPLOYEE_NUM (10000) //最大员工数目
 
-#define MAX_CHAR_BUFFER_LEN (1024)
+#define MAX_CHAR_BUFFER_LEN (1024) //最大缓冲区长度
 #define MAX_NAME_LEN MAX_CHAR_BUFFER_LEN
 #define MAX_DEPARTMENT_LEN MAX_CHAR_BUFFER_LEN
 #define MAX_POSITION_LEN MAX_CHAR_BUFFER_LEN
-#define WORK_ID_BUF_LEN (6)
+#define WORK_ID_BUF_LEN (6) //员工id缓冲区大小,员工id为WORK_ID_BUF_LEN-1=5
 
 ///> 日期
 typedef struct _entry_date_type_t {

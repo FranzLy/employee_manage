@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 
+/* 拷贝字符串 */
 #define COPY_STRING(_dst, _src, _len)   \
     do {                             \
         memset(_dst, 0, sizeof(_dst)); \
@@ -16,6 +17,7 @@
         _dst[_len] = '\0';             \
     } while (0)
 
+/* 释放内存 */
 #define FREE(ptr)      \
     if (ptr != NULL) { \
         free(ptr);     \
