@@ -1,0 +1,980 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - app.info - src/command_parse/parse_args.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/command_parse</a> - parse_args.c<span style="font-size: 80%;"> (source / <a href="parse_args.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">app.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">419</td>
+            <td class="headerCovTableEntry">435</td>
+            <td class="headerCovTableEntryHi">96.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2022-06-26 04:04:00</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * @Descripttion: 解析输入参数
+<span class="lineNum">       3 </span>            :  * @version:
+<span class="lineNum">       4 </span>            :  * @Author: liyu
+<span class="lineNum">       5 </span>            :  * @Date: 2022-06-15 05:27:18
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : #include &quot;parse_args.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;common.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;log.h&quot;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : /////////////////////////////////////解析命令的辅助函数/////////////////////////////////////
+<span class="lineNum">      14 </span>            : /*
+<span class="lineNum">      15 </span>            :  *@brief 检查work id 是否合法
+<span class="lineNum">      16 </span>            :  *@param [in]work_id_str 参数命令
+<span class="lineNum">      17 </span>            :  *@param [in]len     参数长度
+<a name="18"><span class="lineNum">      18 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">      19 </span>            :  */
+<span class="lineNum">      20 </span><span class="lineCov">         22 : static bool check_id_validity(const char* work_id_str, int len)</span>
+<span class="lineNum">      21 </span>            : {
+<span class="lineNum">      22 </span>            :     //工号要求5位数
+<span class="lineNum">      23 </span><span class="lineCov">         22 :     if (len != WORK_ID_BUF_LEN - 1) {</span>
+<span class="lineNum">      24 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Input work id must be like 07406 meanning length is %d.&quot;, WORK_ID_BUF_LEN - 1);</span>
+<span class="lineNum">      25 </span><span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">      26 </span>            :     }
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :     //纯数字
+<span class="lineNum">      29 </span><span class="lineCov">        125 :     for (int i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">      30 </span><span class="lineCov">        105 :         if (isdigit(work_id_str[i]) == 0) {</span>
+<span class="lineNum">      31 </span><span class="lineCov">          1 :             LOG_WARN(&quot;Input work id is invalid.&quot;);</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">      33 </span>            :         }
+<span class="lineNum">      34 </span>            :     }
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineCov">         20 :     return true;</span>
+<span class="lineNum">      37 </span>            : }
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /*
+<span class="lineNum">      40 </span>            :  *@brief 检查date 是否合法
+<span class="lineNum">      41 </span>            :  *@param [in]year month day 年月日
+<a name="42"><span class="lineNum">      42 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">      43 </span>            :  */
+<span class="lineNum">      44 </span><span class="lineCov">         11 : static bool check_date_validity_helper(int year, int month, int day)</span>
+<span class="lineNum">      45 </span>            : {
+<span class="lineNum">      46 </span><span class="lineCov">         11 :     int month_buf[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }; //月份修正表</span>
+<span class="lineNum">      47 </span>            :     time_t cur_time;
+<span class="lineNum">      48 </span>            :     struct tm* p_time;
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            :     //获取当前时间
+<span class="lineNum">      51 </span><span class="lineCov">         11 :     time(&amp;cur_time);</span>
+<span class="lineNum">      52 </span><span class="lineCov">         11 :     p_time = gmtime(&amp;cur_time);</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :     //判断是否早于公司成立年份或超过当前年份
+<span class="lineNum">      55 </span><span class="lineCov">         11 :     if (year &lt; ESTABLISHED_YEAR || year &gt; (1900 + p_time-&gt;tm_year)) {</span>
+<span class="lineNum">      56 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Date info is invalid. Reason: year is invalid.&quot;);</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">      58 </span>            :     }
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :     //闰年2月+1天
+<span class="lineNum">      61 </span><span class="lineCov">         10 :     if (month == 2) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">          5 :         (((year % 4 == 0) &amp;&amp; (year % 100 != 0)) || (year % 400 == 0)) ? month_buf[1] += 1 : month_buf[1];</span>
+<span class="lineNum">      63 </span>            :     }
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            :     //判断月份日期是否合法
+<span class="lineNum">      66 </span><span class="lineCov">         10 :     if (month &gt; 12 || month &lt; 1 || day &gt; month_buf[month - 1] || day &lt; 1) {</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Date info is invalid. Reason: month or day is invalid.&quot;);</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">      69 </span>            :     }
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :     //判断是否超过当前日期
+<span class="lineNum">      72 </span><span class="lineCov">          9 :     if (year == (1900 + p_time-&gt;tm_year)) {</span>
+<span class="lineNum">      73 </span><span class="lineCov">          6 :         if ((month &gt; (1 + p_time-&gt;tm_mon)) || (month == (1 + p_time-&gt;tm_mon) &amp;&amp; day &gt; p_time-&gt;tm_mday)) {</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :             LOG_WARN(&quot;Date info is invalid. Reason: month or day is over current date.&quot;);</span>
+<span class="lineNum">      75 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">      76 </span>            :         }
+<span class="lineNum">      77 </span>            :     }
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">          8 :     return true;</span>
+<span class="lineNum">      80 </span>            : }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : /*
+<span class="lineNum">      83 </span>            :  *@brief 检查date 是否合法
+<span class="lineNum">      84 </span>            :  *@param [in]date_str 参数命令
+<span class="lineNum">      85 </span>            :  *@param [in]len     参数长度
+<span class="lineNum">      86 </span>            :  *@param [out]date   保存的日期
+<a name="87"><span class="lineNum">      87 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">      88 </span>            :  */
+<span class="lineNum">      89 </span><span class="lineCov">         12 : static bool check_date_validity(const char* date_str, int len, entry_date_type_t* date)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineCov">         12 :     int i, start_index = 0;</span>
+<span class="lineNum">      92 </span><span class="lineCov">         12 :     int spot_cnt = 0;</span>
+<span class="lineNum">      93 </span>            :     int year, month, day;
+<span class="lineNum">      94 </span><span class="lineCov">         12 :     char buffer[16] = { 0 };</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :     //获取日期年月日
+<span class="lineNum">      97 </span><span class="lineCov">        130 :     for (i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">      98 </span><span class="lineCov">        119 :         if (date_str[i] == '.') {</span>
+<span class="lineNum">      99 </span><span class="lineCov">         25 :             spot_cnt++;</span>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">         25 :             if (spot_cnt == 1) {</span>
+<span class="lineNum">     102 </span><span class="lineCov">         12 :                 COPY_STRING(buffer,date_str , i );</span>
+<span class="lineNum">     103 </span><span class="lineCov">         12 :                 year = atoi(buffer);</span>
+<span class="lineNum">     104 </span><span class="lineCov">         12 :                 start_index = i + 1;</span>
+<span class="lineNum">     105 </span><span class="lineCov">         12 :                 continue;</span>
+<span class="lineNum">     106 </span>            :             }
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">         13 :             if (spot_cnt == 2) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">         12 :                 COPY_STRING(buffer,date_str + start_index, i - start_index);</span>
+<span class="lineNum">     110 </span><span class="lineCov">         12 :                 month = atoi(buffer);</span>
+<span class="lineNum">     111 </span><span class="lineCov">         12 :                 start_index = i + 1;</span>
+<span class="lineNum">     112 </span><span class="lineCov">         12 :                 continue;</span>
+<span class="lineNum">     113 </span>            :             }
+<span class="lineNum">     114 </span>            :         }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">         95 :         if (isdigit(date_str[i]) == 0) {</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :             LOG_WARN(&quot;Input date %s is invalid.&quot;, date_str);</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">     119 </span>            :         }
+<span class="lineNum">     120 </span>            :     }
+<span class="lineNum">     121 </span><span class="lineCov">         11 :     COPY_STRING(buffer,date_str + start_index, i - start_index);</span>
+<span class="lineNum">     122 </span><span class="lineCov">         11 :     day = atoi(buffer);</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     //检查日期合法性
+<span class="lineNum">     125 </span><span class="lineCov">         11 :     if (!check_date_validity_helper(year, month, day)) {</span>
+<span class="lineNum">     126 </span><span class="lineCov">          3 :         return false;</span>
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     //保存
+<span class="lineNum">     130 </span><span class="lineCov">          8 :     date-&gt;year = year;</span>
+<span class="lineNum">     131 </span><span class="lineCov">          8 :     date-&gt;month = month;</span>
+<span class="lineNum">     132 </span><span class="lineCov">          8 :     date-&gt;day = day;</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">          8 :     return true;</span>
+<span class="lineNum">     135 </span>            : }
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            : /*
+<span class="lineNum">     138 </span>            :  *@brief 检查姓名 部门 职位 是否合法
+<span class="lineNum">     139 </span>            :  *@param [in]src_str 参数命令
+<span class="lineNum">     140 </span>            :  *@param [in]len     参数长度
+<a name="141"><span class="lineNum">     141 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     142 </span>            :  */
+<span class="lineNum">     143 </span><span class="lineCov">         32 : static bool check_str_validity(const char* src_str, int len) // str</span>
+<span class="lineNum">     144 </span>            : {
+<span class="lineNum">     145 </span>            :     //要求全英文
+<span class="lineNum">     146 </span><span class="lineCov">        259 :     for (int i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">     147 </span><span class="lineCov">        228 :         if (isalpha(src_str[i]) == 0) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :             LOG_WARN(&quot;Employee name、department or position must be English character.&quot;);</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">     150 </span>            :         }
+<span class="lineNum">     151 </span>            :     }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineCov">         31 :     return true;</span>
+<span class="lineNum">     154 </span>            : }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : /*
+<span class="lineNum">     157 </span>            :  *@brief 转化日志参数
+<span class="lineNum">     158 </span>            :  *@param [in]buffer     参数命令
+<span class="lineNum">     159 </span>            :  *@param [in]len        参数长度
+<span class="lineNum">     160 </span>            :  *@param [out]log_level 日志等级
+<a name="161"><span class="lineNum">     161 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     162 </span>            :  */
+<span class="lineNum">     163 </span><span class="lineCov">          5 : static bool convert_param_to_log(const char* buffer, int len, log_level_t* log_level)</span>
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineCov">          5 :     bool ret = false;</span>
+<span class="lineNum">     166 </span><span class="lineCov">          5 :     int i = g_log_level;</span>
+<span class="lineNum">     167 </span>            :     // LOG_LEVEL_ERR = 0,LOG_LEVEL_WARN = 1,LOG_LEVEL_INFO =2 ,LOG_LEVEL_DEBUG =3
+<span class="lineNum">     168 </span><span class="lineCov">          5 :     char* log_strs[] = { LOG_ERR_STR, LOG_WARN_STR, LOG_INFO_STR, LOG_DEBUG_STR };</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">          5 :     if (buffer == NULL || len == 0) {</span>
+<span class="lineNum">     171 </span>            :         goto out;
+<span class="lineNum">     172 </span>            :     }
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">         21 :     for (i = LOG_LEVEL_ERR; i &lt; LOG_LEVEL_MAX; i++) {</span>
+<span class="lineNum">     175 </span><span class="lineCov">         20 :         if (strlen(log_strs[i]) == len &amp;&amp; strncmp(buffer, log_strs[i], len) == 0) {</span>
+<span class="lineNum">     176 </span><span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     177 </span>            :         }
+<span class="lineNum">     178 </span>            :     }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">          5 :     if (i == LOG_LEVEL_MAX) {</span>
+<span class="lineNum">     181 </span><span class="lineCov">          1 :         *log_level = g_log_level;</span>
+<span class="lineNum">     182 </span><span class="lineCov">          1 :         ret = false;</span>
+<span class="lineNum">     183 </span>            :     } else {
+<span class="lineNum">     184 </span><span class="lineCov">          4 :         *log_level = i;</span>
+<span class="lineNum">     185 </span><span class="lineCov">          4 :         ret = true;</span>
+<span class="lineNum">     186 </span>            :     }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : out:
+<span class="lineNum">     189 </span><span class="lineCov">          5 :     return ret;</span>
+<span class="lineNum">     190 </span>            : }
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            : /*
+<span class="lineNum">     193 </span>            :  *@brief 记录输入的排序索引参数匹配的类型
+<span class="lineNum">     194 </span>            :  *@param [in]buffer 参数命令
+<span class="lineNum">     195 </span>            :  *@param [in]len     参数长度
+<span class="lineNum">     196 </span>            :  *@param [out]type     排序类型
+<a name="197"><span class="lineNum">     197 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     198 </span>            :  */
+<span class="lineNum">     199 </span><span class="lineCov">         13 : static bool convert_param_to_sort_type(const char* buffer, int len, sort_type_t* type)</span>
+<span class="lineNum">     200 </span>            : {
+<span class="lineNum">     201 </span><span class="lineCov">         13 :     bool ret = false;</span>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span>            :     //目前仅支持日期和工号排序
+<span class="lineNum">     204 </span><span class="lineCov">         13 :     if (len == strlen(SORT_PARAM_WORKID) &amp;&amp; (strncmp(buffer, SORT_PARAM_WORKID, len) == 0)) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">          3 :         (*type) |= SORT_BY_ID;</span>
+<span class="lineNum">     206 </span><span class="lineCov">          3 :         ret = true;</span>
+<span class="lineNum">     207 </span><span class="lineCov">         10 :     } else if (len == strlen(SORT_PARAM_DATE) &amp;&amp; (strncmp(buffer, SORT_PARAM_DATE, len) == 0)) {</span>
+<span class="lineNum">     208 </span><span class="lineCov">          9 :         (*type) |= SORT_BY_DATE;</span>
+<span class="lineNum">     209 </span><span class="lineCov">          9 :         ret = true;</span>
+<span class="lineNum">     210 </span>            :     }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">         13 :     return ret;</span>
+<span class="lineNum">     213 </span>            : }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            : /*
+<span class="lineNum">     216 </span>            :  *@brief 将输入的员工参数保存至结构体中，并记录参数类型
+<span class="lineNum">     217 </span>            :  *@param [in]buffer 参数命令
+<span class="lineNum">     218 </span>            :  *@param [in]len     参数长度
+<span class="lineNum">     219 </span>            :  *@param [out]request   保存的结构体
+<span class="lineNum">     220 </span>            :  *@param [in]type     参数类型
+<a name="221"><span class="lineNum">     221 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     222 </span>            :  */
+<span class="lineNum">     223 </span><span class="lineCov">         71 : static bool convert_param_to_info(const char* buffer, int len, request_info_t* request, employee_attr_type_t type)</span>
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span><span class="lineCov">         71 :     bool ret = false;</span>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span><span class="lineCov">         71 :     switch (type) {</span>
+<span class="lineNum">     228 </span>            :     case EMPLOYEE_WORKID: //工号
+<span class="lineNum">     229 </span><span class="lineCov">         23 :         if (request-&gt;info.attr_type &amp; EMPLOYEE_WORKID) {</span>
+<span class="lineNum">     230 </span><span class="lineCov">          1 :             LOG_ERR(&quot;Cannot set same work id over one time!&quot;);</span>
+<span class="lineNum">     231 </span><span class="lineCov">          1 :             ret = false;</span>
+<span class="lineNum">     232 </span><span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     233 </span>            :         }
+<span class="lineNum">     234 </span><span class="lineCov">         22 :         (request-&gt;info.attr_type) |= EMPLOYEE_WORKID;</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            :         //检查合法性并赋值
+<span class="lineNum">     237 </span><span class="lineCov">         22 :         ret = check_id_validity(buffer, len);</span>
+<span class="lineNum">     238 </span><span class="lineCov">         22 :         if (!ret) {</span>
+<span class="lineNum">     239 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     240 </span>            :         }
+<span class="lineNum">     241 </span><span class="lineCov">         20 :         COPY_STRING(request-&gt;info.work_id,buffer,len);</span>
+<span class="lineNum">     242 </span><span class="lineCov">         20 :         break;</span>
+<span class="lineNum">     243 </span>            :     case EMPLOYEE_DATE:
+<span class="lineNum">     244 </span><span class="lineCov">         13 :         if (request-&gt;info.attr_type &amp; EMPLOYEE_DATE) {</span>
+<span class="lineNum">     245 </span><span class="lineCov">          1 :             LOG_ERR(&quot;Cannot set same date over one time!&quot;);</span>
+<span class="lineNum">     246 </span><span class="lineCov">          1 :             ret = false;</span>
+<span class="lineNum">     247 </span><span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     248 </span>            :         }
+<span class="lineNum">     249 </span><span class="lineCov">         12 :         (request-&gt;info.attr_type) |= EMPLOYEE_DATE;</span>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            :         //检查合法性并赋值
+<span class="lineNum">     252 </span><span class="lineCov">         12 :         ret = check_date_validity(buffer, len, &amp;(request-&gt;info.date));</span>
+<span class="lineNum">     253 </span><span class="lineCov">         12 :         break;</span>
+<span class="lineNum">     254 </span>            :     case EMPLOYEE_NAME: //姓名
+<span class="lineNum">     255 </span>            :     case EMPLOYEE_DEPARTMENT: //部门
+<span class="lineNum">     256 </span>            :     case EMPLOYEE_POSITION: //职位
+<span class="lineNum">     257 </span><span class="lineCov">         35 :         if (request-&gt;info.attr_type &amp; type) {</span>
+<span class="lineNum">     258 </span><span class="lineCov">          3 :             LOG_ERR(&quot;Cannot set same name over one time!&quot;);</span>
+<span class="lineNum">     259 </span><span class="lineCov">          3 :             ret = false;</span>
+<span class="lineNum">     260 </span><span class="lineCov">          3 :             break;</span>
+<span class="lineNum">     261 </span>            :         }
+<span class="lineNum">     262 </span><span class="lineCov">         32 :         (request-&gt;info.attr_type) |= type;</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :         //检查合法性并赋值
+<span class="lineNum">     265 </span><span class="lineCov">         32 :         ret = check_str_validity(buffer, len);</span>
+<span class="lineNum">     266 </span><span class="lineCov">         32 :         if (!ret) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     268 </span>            :         }
+<span class="lineNum">     269 </span><span class="lineCov">         31 :         if (type == EMPLOYEE_NAME) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">         25 :             COPY_STRING(request-&gt;info.name,buffer,len);</span>
+<span class="lineNum">     271 </span><span class="lineCov">          6 :         } else if (type == EMPLOYEE_DEPARTMENT) {</span>
+<span class="lineNum">     272 </span><span class="lineCov">          3 :             COPY_STRING(request-&gt;info.department,buffer,len);</span>
+<span class="lineNum">     273 </span>            :         } else {
+<span class="lineNum">     274 </span><span class="lineCov">          3 :             COPY_STRING(request-&gt;info.position,buffer,len);</span>
+<span class="lineNum">     275 </span>            :         }
+<span class="lineNum">     276 </span><span class="lineCov">         31 :         break;</span>
+<span class="lineNum">     277 </span>            :     default:
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     279 </span>            :     }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineCov">         71 :     return ret;</span>
+<span class="lineNum">     282 </span>            : }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span>            : /*
+<span class="lineNum">     285 </span>            :  *@brief 转化命令的所有参数
+<span class="lineNum">     286 </span>            :  *@param [in]param_cnt 参数个数
+<span class="lineNum">     287 </span>            :  *@param [in]param_val     参数值
+<span class="lineNum">     288 </span>            :  *@param [out]request   保存的结构体
+<a name="289"><span class="lineNum">     289 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     290 </span>            :  */
+<span class="lineNum">     291 </span><span class="lineCov">         57 : static bool convert_cmd_all_params(int param_cnt, char** param_val, request_info_t* request)</span>
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span><span class="lineCov">         57 :     bool ret = true;</span>
+<span class="lineNum">     294 </span>            :     int opt;
+<span class="lineNum">     295 </span><span class="lineCov">         57 :     const char* optstring = &quot;i:n:d:D:p:s:l:&quot;; //</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">         57 :     optind = 1; //令全局变量optind=1,使得getopt从数组的index=1处开始检索</span>
+<span class="lineNum">     298 </span><span class="lineCov">        191 :     while ((opt = getopt(param_cnt, param_val, optstring)) != -1) {</span>
+<span class="lineNum">     299 </span><span class="lineCov">         91 :         switch (opt) {</span>
+<span class="lineNum">     300 </span>            :         case 'i': // work id
+<span class="lineNum">     301 </span><span class="lineCov">         23 :             LOG_DEBUG(&quot;opt is i, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">         23 :             ret = convert_param_to_info(optarg, strlen(optarg), request, EMPLOYEE_WORKID);</span>
+<span class="lineNum">     304 </span><span class="lineCov">         23 :             if (!ret) {</span>
+<span class="lineNum">     305 </span><span class="lineCov">          3 :                 goto out;</span>
+<span class="lineNum">     306 </span>            :             }
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">         20 :             break;</span>
+<span class="lineNum">     309 </span>            :         case 'n': // name
+<span class="lineNum">     310 </span><span class="lineCov">         27 :             LOG_DEBUG(&quot;opt is n, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">         27 :             ret = convert_param_to_info(optarg, strlen(optarg), request, EMPLOYEE_NAME);</span>
+<span class="lineNum">     313 </span><span class="lineCov">         27 :             if (!ret) {</span>
+<span class="lineNum">     314 </span><span class="lineCov">          2 :                 goto out;</span>
+<span class="lineNum">     315 </span>            :             }
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">         25 :             break;</span>
+<span class="lineNum">     318 </span>            :         case 'd': // date
+<span class="lineNum">     319 </span><span class="lineCov">         13 :             LOG_DEBUG(&quot;opt is d, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span><span class="lineCov">         13 :             ret = convert_param_to_info(optarg, strlen(optarg), request, EMPLOYEE_DATE);</span>
+<span class="lineNum">     322 </span><span class="lineCov">         13 :             if (!ret) {</span>
+<span class="lineNum">     323 </span><span class="lineCov">          5 :                 goto out;</span>
+<span class="lineNum">     324 </span>            :             }
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineCov">          8 :             break;</span>
+<span class="lineNum">     327 </span>            :         case 'D': // department
+<span class="lineNum">     328 </span><span class="lineCov">          4 :             LOG_DEBUG(&quot;opt is D, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span><span class="lineCov">          4 :             ret = convert_param_to_info(optarg, strlen(optarg), request, EMPLOYEE_DEPARTMENT);</span>
+<span class="lineNum">     331 </span><span class="lineCov">          4 :             if (!ret) {</span>
+<span class="lineNum">     332 </span><span class="lineCov">          1 :                 goto out;</span>
+<span class="lineNum">     333 </span>            :             }
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">          3 :             break;</span>
+<span class="lineNum">     336 </span>            :         case 'p': // position
+<span class="lineNum">     337 </span><span class="lineCov">          4 :             LOG_DEBUG(&quot;opt is p, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">          4 :             ret = convert_param_to_info(optarg, strlen(optarg), request, EMPLOYEE_POSITION);</span>
+<span class="lineNum">     340 </span><span class="lineCov">          4 :             if (!ret) {</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :                 goto out;</span>
+<span class="lineNum">     342 </span>            :             }
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineCov">          3 :             break;</span>
+<span class="lineNum">     345 </span>            :         case 's': // sort
+<span class="lineNum">     346 </span><span class="lineCov">         13 :             LOG_DEBUG(&quot;opt is s, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     347 </span><span class="lineCov">         13 :             ret = convert_param_to_sort_type(optarg, strlen(optarg), &amp;(request-&gt;sort_type));</span>
+<span class="lineNum">     348 </span><span class="lineCov">         13 :             if (!ret) {</span>
+<span class="lineNum">     349 </span><span class="lineCov">          1 :                 goto out;</span>
+<span class="lineNum">     350 </span>            :             }
+<span class="lineNum">     351 </span><span class="lineCov">         12 :             break;</span>
+<span class="lineNum">     352 </span>            :         case 'l':
+<span class="lineNum">     353 </span><span class="lineCov">          5 :             LOG_DEBUG(&quot;opt is l, oprarg is: %s\n&quot;, optarg);</span>
+<span class="lineNum">     354 </span><span class="lineCov">          5 :             ret = convert_param_to_log(optarg, strlen(optarg), &amp;(request-&gt;log_level));</span>
+<span class="lineNum">     355 </span><span class="lineCov">          5 :             if (!ret) {</span>
+<span class="lineNum">     356 </span><span class="lineCov">          1 :                 goto out;</span>
+<span class="lineNum">     357 </span>            :             }
+<span class="lineNum">     358 </span><span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     359 </span>            :         case '?': // invalid param
+<span class="lineNum">     360 </span><span class="lineCov">          2 :             ret = false;</span>
+<span class="lineNum">     361 </span><span class="lineCov">          2 :             LOG_ERR(&quot;error optopt: %c\n&quot;, optopt);</span>
+<span class="lineNum">     362 </span><span class="lineCov">          2 :             LOG_ERR(&quot;error opterr: %d\n&quot;, opterr);</span>
+<span class="lineNum">     363 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     364 </span>            :         }
+<span class="lineNum">     365 </span>            :     }
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            : out:
+<span class="lineNum">     368 </span><span class="lineCov">         57 :     return ret;</span>
+<span class="lineNum">     369 </span>            : }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            : /*
+<span class="lineNum">     372 </span>            :  *@brief 获取命令类型
+<span class="lineNum">     373 </span>            :  *@param [in]command 参数命令
+<a name="374"><span class="lineNum">     374 </span>            :  *@return 命令类型</a>
+<span class="lineNum">     375 </span>            :  */
+<span class="lineNum">     376 </span><span class="lineCov">         60 : static command_type_t get_command_type(char* command)</span>
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span><span class="lineCov">         60 :     LOG_DEBUG(&quot;command = %s&quot;, command);</span>
+<span class="lineNum">     379 </span><span class="lineCov">         60 :     command_type_t ret = INVALID_COMMAND;</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span>            :     //在全局命令中匹配类型,若匹配上,则转化相应参数
+<span class="lineNum">     382 </span><span class="lineCov">        216 :     for (int i = INVALID_COMMAND + 1; i &lt; MAX_COMMAND; i++) {</span>
+<span class="lineNum">     383 </span><span class="lineCov">        213 :         if (strlen(command) == strlen(g_cmd_info[i].name)</span>
+<span class="lineNum">     384 </span><span class="lineCov">        109 :             &amp;&amp; strncmp(command, g_cmd_info[i].name, strlen(command)) == 0) {</span>
+<span class="lineNum">     385 </span><span class="lineCov">         57 :             ret = (command_type_t)i;</span>
+<span class="lineNum">     386 </span><span class="lineCov">         57 :             break;</span>
+<span class="lineNum">     387 </span>            :         }
+<span class="lineNum">     388 </span>            :     }
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineCov">         60 :     return ret;</span>
+<span class="lineNum">     391 </span>            : }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            : /*
+<span class="lineNum">     394 </span>            :  *@brief 分割输入
+<span class="lineNum">     395 </span>            :  *@details 此函数内部会为param_val动态申请内存,使用者需手动释放
+<span class="lineNum">     396 </span>            :  *@param [in]command 参数命令
+<span class="lineNum">     397 </span>            :  *@param [in]len 参数长度
+<span class="lineNum">     398 </span>            :  *@param [in]param_val 保存参数
+<a name="399"><span class="lineNum">     399 </span>            :  *@return 参数个数,-1代表参数过多</a>
+<span class="lineNum">     400 </span>            :  */
+<span class="lineNum">     401 </span><span class="lineCov">         62 : static int split_input_args(const char* command, int len, char** param_val)</span>
+<span class="lineNum">     402 </span>            : {
+<span class="lineNum">     403 </span><span class="lineCov">         62 :     int ret = 0, param_cnt = 0;</span>
+<span class="lineNum">     404 </span><span class="lineCov">         62 :     char *out_str = NULL, *tmp_str = NULL, *dim = &quot;\' \'\'\t\'\'\n\'&quot;; //分隔符为空格或制表符或换行符</span>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            :     //分割参数
+<span class="lineNum">     407 </span><span class="lineCov">         62 :     out_str = strtok_r((char*)command, dim, &amp;tmp_str);</span>
+<span class="lineNum">     408 </span><span class="lineCov">        382 :     while (out_str != NULL) {</span>
+<span class="lineNum">     409 </span><span class="lineCov">        259 :         if (param_cnt &gt;= MAX_PARAM_NUM) {</span>
+<span class="lineNum">     410 </span><span class="lineCov">          1 :             LOG_ERR(&quot;Input too many params.&quot;);</span>
+<span class="lineNum">     411 </span><span class="lineCov">          1 :             param_cnt = -1;</span>
+<span class="lineNum">     412 </span><span class="lineCov">          1 :             break;</span>
+<span class="lineNum">     413 </span>            :         }
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span>            :         //保存参数值
+<span class="lineNum">     416 </span><span class="lineCov">        258 :         param_val[param_cnt] = (char*)malloc(MAX_CHAR_BUFFER_LEN);</span>
+<span class="lineNum">     417 </span><span class="lineCov">        258 :         if (param_val[param_cnt] == NULL) {</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :             LOG_ERR(&quot;malloc for param_val[%d] failed.&quot;, param_cnt);</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :             param_cnt = 0;</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     421 </span>            :         };
+<span class="lineNum">     422 </span><span class="lineCov">        258 :         COPY_STRING(param_val[param_cnt],out_str,strlen(out_str));</span>
+<span class="lineNum">     423 </span><span class="lineCov">        258 :         LOG_DEBUG(&quot;param_val[%d]=%s&quot;, param_cnt, param_val[param_cnt]);</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :         //分割出下一个字符串
+<span class="lineNum">     426 </span><span class="lineCov">        258 :         out_str = strtok_r(NULL, dim, &amp;tmp_str);</span>
+<span class="lineNum">     427 </span><span class="lineCov">        258 :         param_cnt++;</span>
+<span class="lineNum">     428 </span>            :     }
+<span class="lineNum">     429 </span><span class="lineCov">         62 :     LOG_DEBUG(&quot;param_cnt =%d&quot;, param_cnt);</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineCov">         62 :     ret = param_cnt;</span>
+<span class="lineNum">     432 </span><span class="lineCov">         62 :     return ret;</span>
+<span class="lineNum">     433 </span>            : }
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span>            : /////////////////////////////////////////////////////////////////////////////////////////
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            : /////////////////////////////////////用于显示程序用法的函数//////////////////////////////////
+<a name="438"><span class="lineNum">     438 </span>            : </a>
+<span class="lineNum">     439 </span>            : ///&gt; 显示添加用法
+<span class="lineNum">     440 </span><span class="lineCov">          6 : static void show_add_usage()</span>
+<span class="lineNum">     441 </span>            : {
+<span class="lineNum">     442 </span><span class="lineCov">          6 :     LOG_INFO(&quot;--------------------Add one employee info:---------------------------&quot;);</span>
+<span class="lineNum">     443 </span><span class="lineCov">          6 :     LOG_INFO(&quot;\t add -i work_id -n name [-d date] [-D department] [-p position]&quot;);</span>
+<span class="lineNum">     444 </span><span class="lineCov">          6 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     445 </span><span class="lineCov">          6 :     LOG_INFO(&quot;\t add -i 00001 -n Zhangsan -d 2022.05.11 -D development -p engineer &quot;);</span>
+<span class="lineNum">     446 </span><span class="lineCov">          6 :     LOG_INFO(&quot;\t add -i 00001 -n Zhangsan &quot;);</span>
+<span class="lineNum">     447 </span><span class="lineCov">          6 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     448 </span><span class="lineCov">          6 : }</span>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<span class="lineNum">     450 </span>            : ///&gt; 显示删除用法
+<span class="lineNum">     451 </span><span class="lineCov">          4 : static void show_del_usage()</span>
+<span class="lineNum">     452 </span>            : {
+<span class="lineNum">     453 </span><span class="lineCov">          4 :     LOG_INFO(&quot;--------------------Delete one employee info(by work_id):------------&quot;);</span>
+<span class="lineNum">     454 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t del - i work_id &quot;);</span>
+<span class="lineNum">     455 </span><span class="lineCov">          4 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     456 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t del -i 00001 &quot;);</span>
+<span class="lineNum">     457 </span><span class="lineCov">          4 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     458 </span><span class="lineCov">          4 : }</span>
+<a name="459"><span class="lineNum">     459 </span>            : </a>
+<span class="lineNum">     460 </span>            : ///&gt; 显示修改用法
+<span class="lineNum">     461 </span><span class="lineCov">          3 : static void show_mod_usage()</span>
+<span class="lineNum">     462 </span>            : {
+<span class="lineNum">     463 </span><span class="lineCov">          3 :     LOG_INFO(&quot;--------------------Modify one employee info(except work_id):--------&quot;);</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">          3 :     LOG_INFO(&quot;\t mod - i work_id[-n name][-d date][-D department][-p position] &quot;);</span>
+<span class="lineNum">     466 </span><span class="lineCov">          3 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     467 </span><span class="lineCov">          3 :     LOG_INFO(&quot;\t mod -i 00001 -n Lisi &quot;);</span>
+<span class="lineNum">     468 </span><span class="lineCov">          3 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     469 </span><span class="lineCov">          3 : }</span>
+<a name="470"><span class="lineNum">     470 </span>            : </a>
+<span class="lineNum">     471 </span>            : ///&gt; 显示查找用法
+<span class="lineNum">     472 </span><span class="lineCov">          4 : static void show_find_usage()</span>
+<span class="lineNum">     473 </span>            : {
+<span class="lineNum">     474 </span><span class="lineCov">          4 :     LOG_INFO(&quot;-------------------Find one employee info(also can sort):-------&quot;);</span>
+<span class="lineNum">     475 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find [-i work_id] [- n name] [-s date] [-s id] &quot;);</span>
+<span class="lineNum">     476 </span><span class="lineCov">          4 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     477 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find -i 00001 &quot;);</span>
+<span class="lineNum">     478 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find -n Zhangsan &quot;);</span>
+<span class="lineNum">     479 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find -n Zhangsan -d 2021.06.30 &quot;);</span>
+<span class="lineNum">     480 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find -n Zhangsan -s date &quot;);</span>
+<span class="lineNum">     481 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t find -n Zhangsan -s id &quot;);</span>
+<span class="lineNum">     482 </span><span class="lineCov">          4 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     483 </span><span class="lineCov">          4 : }</span>
+<a name="484"><span class="lineNum">     484 </span>            : </a>
+<span class="lineNum">     485 </span>            : ///&gt; 显示遍历用法
+<span class="lineNum">     486 </span><span class="lineCov">          5 : static void show_trav_usage()</span>
+<span class="lineNum">     487 </span>            : {
+<span class="lineNum">     488 </span><span class="lineCov">          5 :     LOG_INFO(&quot;------------------Show all employees info:-------------------- &quot;);</span>
+<span class="lineNum">     489 </span><span class="lineCov">          5 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     490 </span><span class="lineCov">          5 :     LOG_INFO(&quot;\t show &quot;);</span>
+<span class="lineNum">     491 </span><span class="lineCov">          5 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     492 </span><span class="lineCov">          5 : }</span>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<span class="lineNum">     494 </span>            : ///&gt; 显示遍历用法
+<span class="lineNum">     495 </span><span class="lineCov">          2 : static void show_log_usage()</span>
+<span class="lineNum">     496 </span>            : {
+<span class="lineNum">     497 </span><span class="lineCov">          2 :     LOG_INFO(&quot;------------------Change log mode [mode is ERR=0 WARN=1 INFO=2 DEBUG=3]:-------------------- &quot;);</span>
+<span class="lineNum">     498 </span><span class="lineCov">          2 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     499 </span><span class="lineCov">          2 :     LOG_INFO(&quot;\t log -l INFO &quot;);</span>
+<span class="lineNum">     500 </span><span class="lineCov">          2 :     LOG_INFO(&quot;\t log -l DEBUG &quot;);</span>
+<span class="lineNum">     501 </span><span class="lineCov">          2 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     502 </span><span class="lineCov">          2 : }</span>
+<a name="503"><span class="lineNum">     503 </span>            : </a>
+<span class="lineNum">     504 </span>            : ///&gt; 显示退出用法
+<span class="lineNum">     505 </span><span class="lineCov">          4 : static void show_exit_usage()</span>
+<span class="lineNum">     506 </span>            : {
+<span class="lineNum">     507 </span><span class="lineCov">          4 :     LOG_INFO(&quot;------------------Exit the program----------------------------------- &quot;);</span>
+<span class="lineNum">     508 </span><span class="lineCov">          4 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     509 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t exit&quot;);</span>
+<span class="lineNum">     510 </span><span class="lineCov">          4 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     511 </span><span class="lineCov">          4 : }</span>
+<a name="512"><span class="lineNum">     512 </span>            : </a>
+<span class="lineNum">     513 </span>            : ///&gt; 显示帮助用法
+<span class="lineNum">     514 </span><span class="lineCov">          4 : static void show_help_usage()</span>
+<span class="lineNum">     515 </span>            : {
+<span class="lineNum">     516 </span><span class="lineCov">          4 :     LOG_INFO(&quot;------------------Use help command----------------------------------- &quot;);</span>
+<span class="lineNum">     517 </span><span class="lineCov">          4 :     LOG_INFO(&quot;Examples: &quot;);</span>
+<span class="lineNum">     518 </span><span class="lineCov">          4 :     LOG_INFO(&quot;\t help&quot;);</span>
+<span class="lineNum">     519 </span><span class="lineCov">          4 :     LOG_INFO(&quot;---------------------------------------------------------------------\n&quot;);</span>
+<span class="lineNum">     520 </span><span class="lineCov">          4 : }</span>
+<a name="521"><span class="lineNum">     521 </span>            : </a>
+<span class="lineNum">     522 </span>            : ///&gt; 显示全部用法
+<span class="lineNum">     523 </span><span class="lineCov">          1 : static void show_usage()</span>
+<span class="lineNum">     524 </span>            : {
+<span class="lineNum">     525 </span><span class="lineCov">          1 :     LOG_INFO(&quot;employee_manager usage:&quot;);</span>
+<span class="lineNum">     526 </span><span class="lineCov">          1 :     show_add_usage();</span>
+<span class="lineNum">     527 </span><span class="lineCov">          1 :     show_del_usage();</span>
+<span class="lineNum">     528 </span><span class="lineCov">          1 :     show_mod_usage();</span>
+<span class="lineNum">     529 </span><span class="lineCov">          1 :     show_find_usage();</span>
+<span class="lineNum">     530 </span><span class="lineCov">          1 :     show_trav_usage();</span>
+<span class="lineNum">     531 </span><span class="lineCov">          1 :     show_help_usage();</span>
+<span class="lineNum">     532 </span><span class="lineCov">          1 :     show_exit_usage();</span>
+<span class="lineNum">     533 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span>            : /////////////////////////////////////解析命令的函数///////////////////////////////////
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span>            : /*
+<span class="lineNum">     538 </span>            :  *@brief 解析用户输入添加命令
+<span class="lineNum">     539 </span>            :  *@param [in]request 用户输入信息
+<a name="540"><span class="lineNum">     540 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     541 </span>            :  */
+<span class="lineNum">     542 </span><span class="lineCov">         10 : static bool process_add_command(const request_info_t* request)</span>
+<span class="lineNum">     543 </span>            : {
+<span class="lineNum">     544 </span><span class="lineCov">         10 :     bool ret = false;</span>
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span>            :     //添加员工信息不允许排序
+<span class="lineNum">     547 </span><span class="lineCov">         10 :     if (request-&gt;sort_type != SORT_BY_NONE) {</span>
+<span class="lineNum">     548 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Add employee info cannot sort.&quot;);</span>
+<span class="lineNum">     549 </span><span class="lineCov">          1 :         show_add_usage();</span>
+<span class="lineNum">     550 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     551 </span>            :     }
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span>            :     //必须包含id和name
+<span class="lineNum">     554 </span><span class="lineCov">          9 :     if (((request-&gt;info.attr_type &amp; EMPLOYEE_WORKID) == 0) || ((request-&gt;info.attr_type &amp; EMPLOYEE_NAME)) == 0) {</span>
+<span class="lineNum">     555 </span><span class="lineCov">          3 :         LOG_WARN(&quot;Add employee info must input work id and name.&quot;);</span>
+<span class="lineNum">     556 </span><span class="lineCov">          3 :         show_add_usage();</span>
+<span class="lineNum">     557 </span><span class="lineCov">          3 :         goto out;</span>
+<span class="lineNum">     558 </span>            :     }
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            :     //插入员工信息
+<span class="lineNum">     561 </span><span class="lineCov">          6 :     ret = insert_one_employee(&amp;(request-&gt;info));</span>
+<span class="lineNum">     562 </span><span class="lineCov">          6 :     if (!ret) {</span>
+<span class="lineNum">     563 </span><span class="lineCov">          1 :         LOG_ERR(&quot;Add one employee info failed.&quot;);</span>
+<span class="lineNum">     564 </span><span class="lineCov">          1 :         show_add_usage();</span>
+<span class="lineNum">     565 </span>            :     }
+<span class="lineNum">     566 </span>            : 
+<span class="lineNum">     567 </span>            : out:
+<span class="lineNum">     568 </span><span class="lineCov">         10 :     return ret;</span>
+<span class="lineNum">     569 </span>            : }
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span>            : /*
+<span class="lineNum">     572 </span>            :  *@brief 解析用户输入删除命令
+<span class="lineNum">     573 </span>            :  *@param [in]request 用户输入信息
+<a name="574"><span class="lineNum">     574 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     575 </span>            :  */
+<span class="lineNum">     576 </span><span class="lineCov">          3 : static bool process_del_command(const request_info_t* request)</span>
+<span class="lineNum">     577 </span>            : {
+<span class="lineNum">     578 </span><span class="lineCov">          3 :     bool ret = false;</span>
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span>            :     //删除员工信息不允许排序
+<span class="lineNum">     581 </span><span class="lineCov">          3 :     if (request-&gt;sort_type != SORT_BY_NONE) {</span>
+<span class="lineNum">     582 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Delete employee info cannot sort.&quot;);</span>
+<span class="lineNum">     583 </span><span class="lineCov">          1 :         show_del_usage();</span>
+<span class="lineNum">     584 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     585 </span>            :     }
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span>            :     //删除员工信息必须仅包含work id
+<span class="lineNum">     588 </span><span class="lineCov">          2 :     if (request-&gt;info.attr_type != EMPLOYEE_WORKID) {</span>
+<span class="lineNum">     589 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Delete employee info only need work id.&quot;);</span>
+<span class="lineNum">     590 </span><span class="lineCov">          1 :         show_del_usage();</span>
+<span class="lineNum">     591 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     592 </span>            :     }
+<span class="lineNum">     593 </span>            : 
+<span class="lineNum">     594 </span>            :     //删除员工信息
+<span class="lineNum">     595 </span><span class="lineCov">          1 :     ret = delete_one_employee(atoi(request-&gt;info.work_id));</span>
+<span class="lineNum">     596 </span><span class="lineCov">          1 :     if (!ret) {</span>
+<span class="lineNum">     597 </span><span class="lineCov">          1 :         LOG_ERR(&quot;Delete one employee info failed.&quot;);</span>
+<span class="lineNum">     598 </span><span class="lineCov">          1 :         show_del_usage();</span>
+<span class="lineNum">     599 </span>            :     }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span>            : out:
+<span class="lineNum">     602 </span><span class="lineCov">          3 :     return ret;</span>
+<span class="lineNum">     603 </span>            : }
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span>            : /*
+<span class="lineNum">     606 </span>            :  *@brief 解析用户输入修改命令
+<span class="lineNum">     607 </span>            :  *@param [in]request 用户输入信息
+<a name="608"><span class="lineNum">     608 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     609 </span>            :  */
+<span class="lineNum">     610 </span><span class="lineCov">          3 : static bool process_mod_command(const request_info_t* request)</span>
+<span class="lineNum">     611 </span>            : {
+<span class="lineNum">     612 </span><span class="lineCov">          3 :     bool ret = false;</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span>            :     //修改员工信息不允许排序
+<span class="lineNum">     615 </span><span class="lineCov">          3 :     if (request-&gt;sort_type != SORT_BY_NONE) {</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Modify employee info cannot sort.&quot;);</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :         show_mod_usage();</span>
+<span class="lineNum">     618 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     619 </span>            :     }
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            :     //必须包含work id 和其他的一项参数
+<span class="lineNum">     622 </span><span class="lineCov">          2 :     if ((((request-&gt;info.attr_type) &amp; EMPLOYEE_WORKID) == 0) || (((request-&gt;info.attr_type) &amp; ~EMPLOYEE_WORKID) == 0)) {</span>
+<span class="lineNum">     623 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Modify employee info must input work id and one other employee info.&quot;);</span>
+<span class="lineNum">     624 </span><span class="lineCov">          1 :         show_mod_usage();</span>
+<span class="lineNum">     625 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     626 </span>            :     }
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span>            :     //修改员工信息
+<span class="lineNum">     629 </span><span class="lineCov">          1 :     ret = modify_one_employee_info(&amp;(request-&gt;info));</span>
+<span class="lineNum">     630 </span><span class="lineCov">          1 :     if (!ret) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :         LOG_ERR(&quot;Modify one employee info failed.&quot;);</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :         show_mod_usage();</span>
+<span class="lineNum">     633 </span>            :     }
+<span class="lineNum">     634 </span>            : 
+<span class="lineNum">     635 </span>            : out:
+<span class="lineNum">     636 </span><span class="lineCov">          3 :     return ret;</span>
+<span class="lineNum">     637 </span>            : }
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span>            : /*
+<span class="lineNum">     640 </span>            :  *@brief 解析用户输入查找命令
+<span class="lineNum">     641 </span>            :  *@param [in]request 用户输入信息
+<a name="642"><span class="lineNum">     642 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     643 </span>            :  */
+<span class="lineNum">     644 </span><span class="lineCov">         10 : static bool process_find_command(const request_info_t* request)</span>
+<span class="lineNum">     645 </span>            : {
+<span class="lineNum">     646 </span><span class="lineCov">         10 :     bool ret = false;</span>
+<span class="lineNum">     647 </span><span class="lineCov">         10 :     employee_info_t **matched_infoes = NULL, *info = NULL;</span>
+<span class="lineNum">     648 </span><span class="lineCov">         10 :     int matched_cnt = 0;</span>
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            :     //仅支持work id或 date排序
+<span class="lineNum">     651 </span><span class="lineCov">         10 :     LOG_INFO(&quot;sort type = %d&quot;, request-&gt;sort_type);</span>
+<span class="lineNum">     652 </span><span class="lineCov">         10 :     if (request-&gt;sort_type == (EMPLOYEE_WORKID | EMPLOYEE_DATE)) {</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :         LOG_WARN(&quot;Only support one sort index.&quot;);</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :         show_find_usage();</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :         goto out;</span>
+<span class="lineNum">     656 </span>            :     }
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span>            :     //若查找条件中包含员工id,则直接利用id查找
+<span class="lineNum">     659 </span><span class="lineCov">         10 :     if (request-&gt;info.attr_type &amp; EMPLOYEE_WORKID) {</span>
+<span class="lineNum">     660 </span><span class="lineCov">          2 :         info = find_employee_by_id(atoi(request-&gt;info.work_id));</span>
+<span class="lineNum">     661 </span><span class="lineCov">          2 :         if (info == NULL) {</span>
+<span class="lineNum">     662 </span><span class="lineCov">          1 :             LOG_ERR(&quot;Find one employee info by work id failed.&quot;);</span>
+<span class="lineNum">     663 </span><span class="lineCov">          1 :             show_find_usage();</span>
+<span class="lineNum">     664 </span><span class="lineCov">          1 :             goto out;</span>
+<span class="lineNum">     665 </span>            :         }
+<span class="lineNum">     666 </span><span class="lineCov">          1 :         show_one_employee_info(info);</span>
+<span class="lineNum">     667 </span><span class="lineCov">          1 :         ret = true;</span>
+<span class="lineNum">     668 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     669 </span>            :     }
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            :     //查找
+<span class="lineNum">     672 </span><span class="lineCov">          8 :     matched_infoes = find_employee_by_info(&amp;(request-&gt;info), &amp;matched_cnt);</span>
+<span class="lineNum">     673 </span><span class="lineCov">          8 :     LOG_INFO(&quot;Matched employee number = %d&quot;, matched_cnt);</span>
+<span class="lineNum">     674 </span><span class="lineCov">          8 :     if (matched_infoes == NULL) {</span>
+<span class="lineNum">     675 </span><span class="lineCov">          2 :         LOG_ERR(&quot;Find one employee info by type failed.&quot;);</span>
+<span class="lineNum">     676 </span><span class="lineCov">          2 :         show_find_usage();</span>
+<span class="lineNum">     677 </span><span class="lineCov">          2 :         goto out;</span>
+<span class="lineNum">     678 </span>            :     }
+<span class="lineNum">     679 </span><span class="lineCov">          6 :     sort_matched_info(matched_infoes, matched_cnt, request-&gt;sort_type);</span>
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span>            : filter:
+<span class="lineNum">     682 </span><span class="lineCov">          6 :     show_matched_employee_info(matched_infoes, matched_cnt);</span>
+<span class="lineNum">     683 </span><span class="lineCov">          6 :     FREE(matched_infoes);</span>
+<span class="lineNum">     684 </span><span class="lineCov">          6 :     ret = true;</span>
+<span class="lineNum">     685 </span>            : out:
+<span class="lineNum">     686 </span><span class="lineCov">         10 :     return ret;</span>
+<span class="lineNum">     687 </span>            : }
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span>            : /*
+<span class="lineNum">     690 </span>            :  *@brief 解析用户输入全部显示命令
+<span class="lineNum">     691 </span>            :  *@param [in]request 用户输入信息
+<a name="692"><span class="lineNum">     692 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     693 </span>            :  */
+<span class="lineNum">     694 </span><span class="lineCov">          5 : static bool process_show_command(const request_info_t* request)</span>
+<span class="lineNum">     695 </span>            : {
+<span class="lineNum">     696 </span><span class="lineCov">          5 :     bool ret = false;</span>
+<span class="lineNum">     697 </span><span class="lineCov">          5 :     employee_info_t** matched_info = NULL;</span>
+<span class="lineNum">     698 </span><span class="lineCov">          5 :     int matched_cnt = 0;</span>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span>            :     // show不需要其他参数
+<span class="lineNum">     701 </span><span class="lineCov">          5 :     if (request-&gt;info.attr_type != EMPLOYEE_INVALID</span>
+<span class="lineNum">     702 </span><span class="lineCov">          4 :         || request-&gt;sort_type != SORT_BY_NONE</span>
+<span class="lineNum">     703 </span><span class="lineCov">          2 :         || IS_VALID_LOG_LEVEL(request-&gt;log_level)) {</span>
+<span class="lineNum">     704 </span><span class="lineCov">          4 :         LOG_WARN(&quot;Wrong command. If you want to show all the employee info, just input 'show'.&quot;);</span>
+<span class="lineNum">     705 </span><span class="lineCov">          4 :         show_trav_usage();</span>
+<span class="lineNum">     706 </span><span class="lineCov">          4 :         goto out;</span>
+<span class="lineNum">     707 </span>            :     }
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span>            :     //遍历员工信息
+<span class="lineNum">     710 </span><span class="lineCov">          1 :     matched_info = traverse_employee_info(&amp;matched_cnt);</span>
+<span class="lineNum">     711 </span><span class="lineCov">          1 :     if (matched_info == NULL) {</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :         LOG_ERR(&quot;Show all employee info failed.&quot;);</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :         show_trav_usage();</span>
+<span class="lineNum">     714 </span>            :     }
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span>            :     //显示
+<span class="lineNum">     717 </span><span class="lineCov">          1 :     LOG_INFO(&quot;Matched employee number = %d&quot;, matched_cnt);</span>
+<span class="lineNum">     718 </span><span class="lineCov">          1 :     show_matched_employee_info(matched_info, matched_cnt);</span>
+<span class="lineNum">     719 </span><span class="lineCov">          1 :     ret = true;</span>
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span>            :     //释放
+<span class="lineNum">     722 </span><span class="lineCov">          1 :     FREE(matched_info);</span>
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span>            : out:
+<span class="lineNum">     725 </span><span class="lineCov">          5 :     return ret;</span>
+<span class="lineNum">     726 </span>            : }
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            : /*
+<span class="lineNum">     729 </span>            :  *@brief 解析用户输入全部日志命令
+<span class="lineNum">     730 </span>            :  *@param [in]request 用户输入信息
+<a name="731"><span class="lineNum">     731 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     732 </span>            :  */
+<span class="lineNum">     733 </span><span class="lineCov">          3 : static bool process_log_command(const request_info_t* request)</span>
+<span class="lineNum">     734 </span>            : {
+<span class="lineNum">     735 </span><span class="lineCov">          3 :     bool ret = false;</span>
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span>            :     // log 不需要其他参数
+<span class="lineNum">     738 </span><span class="lineCov">          3 :     if (request-&gt;info.attr_type != EMPLOYEE_INVALID || request-&gt;sort_type != SORT_BY_NONE) {</span>
+<span class="lineNum">     739 </span><span class="lineCov">          2 :         LOG_WARN(&quot;Wrong command. If you want to change log level, just input log.&quot;);</span>
+<span class="lineNum">     740 </span><span class="lineCov">          2 :         show_log_usage();</span>
+<span class="lineNum">     741 </span><span class="lineCov">          2 :         goto out;</span>
+<span class="lineNum">     742 </span>            :     }
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            :     //设置当前日志等级
+<span class="lineNum">     745 </span><span class="lineCov">          1 :     g_log_level = request-&gt;log_level;</span>
+<span class="lineNum">     746 </span><span class="lineCov">          1 :     ret = true;</span>
+<span class="lineNum">     747 </span><span class="lineCov">          1 :     LOG_INFO(&quot;Current log level is %d&quot;, g_log_level);</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span>            : out:
+<span class="lineNum">     750 </span><span class="lineCov">          3 :     return ret;</span>
+<span class="lineNum">     751 </span>            : }
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span>            : /*
+<span class="lineNum">     754 </span>            :  *@brief 解析用户输入退出命令
+<span class="lineNum">     755 </span>            :  *@param [in]request 用户输入信息
+<a name="756"><span class="lineNum">     756 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     757 </span>            :  */
+<span class="lineNum">     758 </span><span class="lineCov">          3 : static bool process_exit_command(const request_info_t* request)</span>
+<span class="lineNum">     759 </span>            : {
+<span class="lineNum">     760 </span><span class="lineCov">          3 :     bool ret = false;</span>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span>            :     // exit 不需要其他参数
+<span class="lineNum">     763 </span><span class="lineCov">          3 :     if (request-&gt;info.attr_type != EMPLOYEE_INVALID</span>
+<span class="lineNum">     764 </span><span class="lineCov">          2 :         || request-&gt;sort_type != SORT_BY_NONE</span>
+<span class="lineNum">     765 </span><span class="lineCov">          1 :         || IS_VALID_LOG_LEVEL(request-&gt;log_level)) {</span>
+<span class="lineNum">     766 </span><span class="lineCov">          3 :         LOG_WARN(&quot;Wrong command. If you want to exit the program, just input exit.&quot;);</span>
+<span class="lineNum">     767 </span><span class="lineCov">          3 :         show_exit_usage();</span>
+<span class="lineNum">     768 </span><span class="lineCov">          3 :         goto out;</span>
+<span class="lineNum">     769 </span>            :     }
+<span class="lineNum">     770 </span>            : 
+<span class="lineNum">     771 </span>            :     //清理员工信息,然后退出
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :     LOG_INFO(&quot;Exit the program with your command.&quot;);</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :     clear_all_employee_info(s_hash_table);</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :     exit(0);</span>
+<span class="lineNum">     775 </span>            : 
+<span class="lineNum">     776 </span>            : out:
+<span class="lineNum">     777 </span><span class="lineCov">          3 :     return ret;</span>
+<span class="lineNum">     778 </span>            : }
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span>            : /*
+<span class="lineNum">     781 </span>            :  *@brief 解析用户输入帮助命令
+<span class="lineNum">     782 </span>            :  *@param [in]request 用户输入信息
+<span class="lineNum">     783 </span>            :  *@return true 成功 false 失败
+<a name="784"><span class="lineNum">     784 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     785 </span>            :  */
+<span class="lineNum">     786 </span><span class="lineCov">          4 : static bool process_help_command(const request_info_t* request)</span>
+<span class="lineNum">     787 </span>            : {
+<span class="lineNum">     788 </span><span class="lineCov">          4 :     bool ret = false;</span>
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span>            :     // help 不需要其他参数
+<span class="lineNum">     791 </span><span class="lineCov">          4 :     if (request-&gt;info.attr_type != EMPLOYEE_INVALID</span>
+<span class="lineNum">     792 </span><span class="lineCov">          3 :         || request-&gt;sort_type != SORT_BY_NONE</span>
+<span class="lineNum">     793 </span><span class="lineCov">          2 :         || IS_VALID_LOG_LEVEL(request-&gt;log_level)) {</span>
+<span class="lineNum">     794 </span><span class="lineCov">          3 :         LOG_WARN(&quot;Wrong command. If you want to get help, just input help.&quot;);</span>
+<span class="lineNum">     795 </span><span class="lineCov">          3 :         show_help_usage();</span>
+<span class="lineNum">     796 </span><span class="lineCov">          3 :         goto out;</span>
+<span class="lineNum">     797 </span>            :     }
+<span class="lineNum">     798 </span>            : 
+<span class="lineNum">     799 </span>            :     // 输出所有用法
+<span class="lineNum">     800 </span><span class="lineCov">          1 :     ret = true;</span>
+<span class="lineNum">     801 </span><span class="lineCov">          1 :     show_usage();</span>
+<span class="lineNum">     802 </span>            : 
+<span class="lineNum">     803 </span>            : out:
+<span class="lineNum">     804 </span><span class="lineCov">          4 :     return ret;</span>
+<span class="lineNum">     805 </span>            : }
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span>            : /*
+<a name="808"><span class="lineNum">     808 </span>            :  *@brief 初始化所有命令</a>
+<span class="lineNum">     809 </span>            :  */
+<span class="lineNum">     810 </span><span class="lineCov">          1 : void init_all_command()</span>
+<span class="lineNum">     811 </span>            : {
+<span class="lineNum">     812 </span><span class="lineCov">          1 :     memset(g_cmd_info, 0, sizeof(g_cmd_info));</span>
+<span class="lineNum">     813 </span>            : 
+<span class="lineNum">     814 </span>            :     //增
+<span class="lineNum">     815 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, ADD_COMMAND, ADD_COMMAND_STR, process_add_command);</span>
+<span class="lineNum">     816 </span>            : 
+<span class="lineNum">     817 </span>            :     //删
+<span class="lineNum">     818 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, DEL_COMMAND, DEL_COMMAND_STR, process_del_command);</span>
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span>            :     //改
+<span class="lineNum">     821 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, MOD_COMMAND, MOD_COMMAND_STR, process_mod_command);</span>
+<span class="lineNum">     822 </span>            : 
+<span class="lineNum">     823 </span>            :     //查
+<span class="lineNum">     824 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, FIND_COMMAND, FIND_COMMAND_STR, process_find_command);</span>
+<span class="lineNum">     825 </span>            : 
+<span class="lineNum">     826 </span>            :     //遍历
+<span class="lineNum">     827 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, SHOW_COMMAND, SHOW_COMMAND_STR, process_show_command);</span>
+<span class="lineNum">     828 </span>            : 
+<span class="lineNum">     829 </span>            :     //帮助
+<span class="lineNum">     830 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, HELP_COMMAND, HELP_COMMAND_STR, process_help_command);</span>
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span>            :     //日志
+<span class="lineNum">     833 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, LOG_COMMAND, LOG_COMMAND_STR, process_log_command);</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span>            :     //退出
+<span class="lineNum">     836 </span><span class="lineCov">          1 :     INIT_COMMAND(g_cmd_info, EXIT_COMMAND, EXIT_COMMAND_STR, process_exit_command);</span>
+<span class="lineNum">     837 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     838 </span>            : 
+<span class="lineNum">     839 </span>            : /*
+<span class="lineNum">     840 </span>            :  *@brief 解析用户输入单行命令
+<span class="lineNum">     841 </span>            :  *@param [in]request 用户输入信息
+<span class="lineNum">     842 </span>            :  *@return true 成功 false 失败
+<a name="843"><span class="lineNum">     843 </span>            :  *@return true 成功 false 失败</a>
+<span class="lineNum">     844 </span>            :  */
+<span class="lineNum">     845 </span><span class="lineCov">         63 : bool process_command_request(const char* command, int len)</span>
+<span class="lineNum">     846 </span>            : {
+<span class="lineNum">     847 </span><span class="lineCov">         63 :     bool ret = false;</span>
+<span class="lineNum">     848 </span><span class="lineCov">         63 :     command_info_t cmd_info = { 0 };</span>
+<span class="lineNum">     849 </span><span class="lineCov">         63 :     char* param_val[MAX_PARAM_NUM] = { 0 };</span>
+<span class="lineNum">     850 </span><span class="lineCov">         63 :     int param_cnt = 0;</span>
+<span class="lineNum">     851 </span>            :     command_type_t cmd_type;
+<span class="lineNum">     852 </span>            : 
+<span class="lineNum">     853 </span>            :     //参数判断
+<span class="lineNum">     854 </span><span class="lineCov">         63 :     if (command == NULL) {</span>
+<span class="lineNum">     855 </span><span class="lineCov">          1 :         LOG_WARN(&quot;Input content is NULL.&quot;);</span>
+<span class="lineNum">     856 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     857 </span>            :     }
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span>            :     //为输入内容请求空间
+<span class="lineNum">     860 </span><span class="lineCov">         62 :     cmd_info.request = (request_info_t*)malloc(sizeof(request_info_t));</span>
+<span class="lineNum">     861 </span><span class="lineCov">         62 :     if (!cmd_info.request) {</span>
+<span class="lineNum">     862 </span><span class="lineNoCov">          0 :         LOG_ERR(&quot;Malloc for cmd_info.request failed.&quot;);</span>
+<span class="lineNum">     863 </span><span class="lineNoCov">          0 :         goto out;</span>
+<span class="lineNum">     864 </span>            :     }
+<span class="lineNum">     865 </span><span class="lineCov">         62 :     memset(cmd_info.request, 0, sizeof(request_info_t));</span>
+<span class="lineNum">     866 </span><span class="lineCov">         62 :     cmd_info.request-&gt;info.attr_type = EMPLOYEE_INVALID;</span>
+<span class="lineNum">     867 </span><span class="lineCov">         62 :     cmd_info.request-&gt;sort_type = SORT_BY_NONE;</span>
+<span class="lineNum">     868 </span><span class="lineCov">         62 :     cmd_info.request-&gt;log_level = LOG_LEVEL_MAX;</span>
+<span class="lineNum">     869 </span>            : 
+<span class="lineNum">     870 </span>            :     //分割用户输入字符串
+<span class="lineNum">     871 </span><span class="lineCov">         62 :     param_cnt = split_input_args(command, len, param_val);</span>
+<span class="lineNum">     872 </span><span class="lineCov">         62 :     if (param_cnt == 0) { //用户未输入有效字符,例如直接换行,则直接返回</span>
+<span class="lineNum">     873 </span><span class="lineCov">          1 :         ret = true;</span>
+<span class="lineNum">     874 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     875 </span><span class="lineCov">         61 :     } else if (param_cnt == -1) { //用户输入参数过多</span>
+<span class="lineNum">     876 </span><span class="lineCov">          1 :         ret = false;</span>
+<span class="lineNum">     877 </span><span class="lineCov">          1 :         goto out;</span>
+<span class="lineNum">     878 </span>            :     }
+<span class="lineNum">     879 </span>            : 
+<span class="lineNum">     880 </span>            :     //判断参数类型
+<span class="lineNum">     881 </span><span class="lineCov">         60 :     if ((cmd_type = get_command_type(param_val[0])) == INVALID_COMMAND) {</span>
+<span class="lineNum">     882 </span><span class="lineCov">          3 :         ret = false;</span>
+<span class="lineNum">     883 </span><span class="lineCov">          3 :         goto out;</span>
+<span class="lineNum">     884 </span>            :     }
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span>            :     //解析命令参数
+<span class="lineNum">     887 </span><span class="lineCov">         57 :     ret = convert_cmd_all_params(param_cnt, param_val, cmd_info.request);</span>
+<span class="lineNum">     888 </span><span class="lineCov">         57 :     if (!ret) {</span>
+<span class="lineNum">     889 </span><span class="lineCov">         16 :         LOG_DEBUG(&quot;Input invalid params!&quot;);</span>
+<span class="lineNum">     890 </span><span class="lineCov">         16 :         goto out;</span>
+<span class="lineNum">     891 </span>            :     }
+<span class="lineNum">     892 </span>            : 
+<span class="lineNum">     893 </span>            :     //按命令类型执行相应的回调函数
+<span class="lineNum">     894 </span><span class="lineCov">         41 :     ret = g_cmd_info[cmd_type].exec(cmd_info.request);</span>
+<span class="lineNum">     895 </span>            : 
+<span class="lineNum">     896 </span>            : out:
+<span class="lineNum">     897 </span><span class="lineCov">        305 :     for (int i = 0; i &lt; param_cnt; i++) {</span>
+<span class="lineNum">     898 </span><span class="lineCov">        242 :         FREE(param_val[i]);</span>
+<span class="lineNum">     899 </span>            :     }
+<span class="lineNum">     900 </span><span class="lineCov">         63 :     FREE(cmd_info.request);</span>
+<span class="lineNum">     901 </span><span class="lineCov">         63 :     return ret;</span>
+<span class="lineNum">     902 </span>            : }
+<span class="lineNum">     903 </span>            : 
+<span class="lineNum">     904 </span>            : /////////////////////////////////////////////////////////////////////////////////////////
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

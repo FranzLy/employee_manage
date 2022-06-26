@@ -1,0 +1,289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - app.info - lib/employee_manager/employee_utils.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">lib/employee_manager</a> - employee_utils.c<span style="font-size: 80%;"> (source / <a href="employee_utils.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">app.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntryMed">86.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2022-06-26 04:04:00</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * @Descripttion: 管理员工信息
+<span class="lineNum">       3 </span>            :  * @version:
+<span class="lineNum">       4 </span>            :  * @Author: liyu
+<span class="lineNum">       5 </span>            :  * @Date: 2022-06-15 05:27:18
+<span class="lineNum">       6 </span>            :  */
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &quot;employee_utils.h&quot;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : /*
+<span class="lineNum">      11 </span>            :  *@brief 比较工号
+<a name="12"><span class="lineNum">      12 </span>            :  *@param [in]first second 员工信息</a>
+<span class="lineNum">      13 </span>            :  */
+<span class="lineNum">      14 </span><span class="lineCov">          5 : static int compare_work_id(employee_info_t** first, employee_info_t** second)</span>
+<span class="lineNum">      15 </span>            : {
+<span class="lineNum">      16 </span><span class="lineCov">          5 :     return (atoi((*first)-&gt;work_id) &gt; atoi((*second)-&gt;work_id));</span>
+<span class="lineNum">      17 </span>            : }
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : /*
+<span class="lineNum">      20 </span>            :  *@brief 比较日期
+<a name="21"><span class="lineNum">      21 </span>            :  *@param [in]first second 员工信息</a>
+<span class="lineNum">      22 </span>            :  */
+<span class="lineNum">      23 </span><span class="lineCov">          4 : static int compare_entry_date(employee_info_t** first, employee_info_t** second)</span>
+<span class="lineNum">      24 </span>            : {
+<span class="lineNum">      25 </span><span class="lineCov">          4 :     entry_date_type_t *first_date = &amp;((*first)-&gt;date), *second_date = &amp;((*second)-&gt;date);</span>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          4 :     if (first_date-&gt;year != second_date-&gt;year) {</span>
+<span class="lineNum">      28 </span><span class="lineCov">          2 :         return (first_date-&gt;year &gt; second_date-&gt;year);</span>
+<span class="lineNum">      29 </span>            :     }
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span><span class="lineCov">          2 :     if (first_date-&gt;month != second_date-&gt;month) {</span>
+<span class="lineNum">      32 </span><span class="lineCov">          1 :         return (first_date-&gt;month &gt; second_date-&gt;month);</span>
+<span class="lineNum">      33 </span>            :     }
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">          1 :     return (first_date-&gt;day &gt;= second_date-&gt;day);</span>
+<span class="lineNum">      36 </span>            : }
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : /*
+<span class="lineNum">      39 </span>            :  *@brief 判断字符串是否相等
+<span class="lineNum">      40 </span>            :  *@param [in]src dst 字符串
+<a name="41"><span class="lineNum">      41 </span>            :  *@return 比较结果</a>
+<span class="lineNum">      42 </span>            :  */
+<span class="lineNum">      43 </span><span class="lineCov">         25 : static bool is_string_equal(const char* src, const char* dst)</span>
+<span class="lineNum">      44 </span>            : {
+<span class="lineNum">      45 </span><span class="lineCov">         25 :     if (src == NULL &amp;&amp; dst == NULL) {</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">      47 </span>            :     }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span><span class="lineCov">         25 :     if (src == NULL || dst == NULL) {</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      51 </span>            :     }
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">         25 :     if (strlen(src) == strlen(dst) &amp;&amp; (strncmp(src, dst, strlen(src)) == 0)) {</span>
+<span class="lineNum">      54 </span><span class="lineCov">         14 :         return true;</span>
+<span class="lineNum">      55 </span>            :     }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">         11 :     return false;</span>
+<span class="lineNum">      58 </span>            : }
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : /*
+<span class="lineNum">      61 </span>            :  *@brief 判断日期是否相等
+<span class="lineNum">      62 </span>            :  *@param [in]src dst 日期
+<a name="63"><span class="lineNum">      63 </span>            :  *@return 比较结果</a>
+<span class="lineNum">      64 </span>            :  */
+<span class="lineNum">      65 </span><span class="lineCov">          5 : static bool is_date_equal(const entry_date_type_t* src, const entry_date_type_t* dst)</span>
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span><span class="lineCov">          5 :     if (src == NULL &amp;&amp; dst == NULL) {</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">      69 </span>            :     }
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">          5 :     if (src == NULL || dst == NULL) {</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      73 </span>            :     }
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">          5 :     if ((src-&gt;year == dst-&gt;year) &amp;&amp; (src-&gt;month == dst-&gt;month) &amp;&amp; (src-&gt;day == src-&gt;day)) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">          2 :         return true;</span>
+<span class="lineNum">      77 </span>            :     }
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">          3 :     return false;</span>
+<span class="lineNum">      80 </span>            : }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : /*
+<span class="lineNum">      83 </span>            :  *@brief 比较员工信息的回调函数
+<span class="lineNum">      84 </span>            :  *param [in]src 存储的员工信息
+<a name="85"><span class="lineNum">      85 </span>            :  *param [in]dst  输入的员工信息</a>
+<span class="lineNum">      86 </span>            :  */
+<span class="lineNum">      87 </span><span class="lineCov">         35 : bool compare_employee_info(const employee_info_t* src, const employee_info_t* dst)</span>
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span>            :     employee_attr_type_t attr_type;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineCov">         35 :     if (dst == NULL) {</span>
+<span class="lineNum">      92 </span><span class="lineCov">          5 :         return true;</span>
+<span class="lineNum">      93 </span>            :     }
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">         30 :     if (src == NULL) {</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      97 </span>            :     }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     //比较姓名
+<span class="lineNum">     100 </span><span class="lineCov">         30 :     if ((dst-&gt;attr_type &amp; EMPLOYEE_NAME) &amp;&amp; !is_string_equal(src-&gt;name, dst-&gt;name)) {</span>
+<span class="lineNum">     101 </span><span class="lineCov">          3 :         return false;</span>
+<span class="lineNum">     102 </span>            :     }
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     //比较入职日期
+<span class="lineNum">     105 </span><span class="lineCov">         27 :     if ((dst-&gt;attr_type &amp; EMPLOYEE_DATE) &amp;&amp; !is_date_equal(&amp;(src-&gt;date), &amp;(dst-&gt;date))) {</span>
+<span class="lineNum">     106 </span><span class="lineCov">          3 :         return false;</span>
+<span class="lineNum">     107 </span>            :     }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            :     //比较部门
+<span class="lineNum">     110 </span><span class="lineCov">         24 :     if ((dst-&gt;attr_type &amp; EMPLOYEE_DEPARTMENT) &amp;&amp; !is_string_equal(src-&gt;department, dst-&gt;department)) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">          4 :         return false;</span>
+<span class="lineNum">     112 </span>            :     }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     //比较职位
+<span class="lineNum">     115 </span><span class="lineCov">         20 :     if ((dst-&gt;attr_type &amp; EMPLOYEE_POSITION) &amp;&amp; !is_string_equal(src-&gt;position, dst-&gt;position)) {</span>
+<span class="lineNum">     116 </span><span class="lineCov">          4 :         return false;</span>
+<span class="lineNum">     117 </span>            :     }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineCov">         16 :     return true;</span>
+<span class="lineNum">     120 </span>            : }
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : /*
+<span class="lineNum">     123 </span>            :  *@brief 更新员工信息的回调函数
+<span class="lineNum">     124 </span>            :  *param [in]src 存储的员工信息
+<a name="125"><span class="lineNum">     125 </span>            :  *param [in]dst  输入的员工信息</a>
+<span class="lineNum">     126 </span>            :  */
+<span class="lineNum">     127 </span><span class="lineCov">          6 : void update_employee_info(employee_info_t* src, const employee_info_t* dst)</span>
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span><span class="lineCov">          6 :     if (src == NULL || dst == NULL) {</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         LOG_INFO(&quot;update_employee_info() do nothing cause dst is null.&quot;);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     132 </span>            :     }
+<span class="lineNum">     133 </span><span class="lineCov">          6 :     memset(src, 0, sizeof(employee_info_t));</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     //更新工号
+<span class="lineNum">     136 </span><span class="lineCov">          6 :     COPY_STRING(src-&gt;work_id, dst-&gt;work_id, strlen(dst-&gt;work_id));</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :     //若输入姓名,则该字段不为空,更新
+<span class="lineNum">     139 </span><span class="lineCov">          6 :     if (strlen(dst-&gt;name) != 0) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">          6 :         COPY_STRING(src-&gt;name, dst-&gt;name, strlen(dst-&gt;name));</span>
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :     //若输入日期,则该字段不为空,更新
+<span class="lineNum">     144 </span><span class="lineCov">          6 :     if (!IS_EMPTY_DATE(dst-&gt;date)) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">          5 :         src-&gt;date.year = dst-&gt;date.year;</span>
+<span class="lineNum">     146 </span><span class="lineCov">          5 :         src-&gt;date.month = dst-&gt;date.month;</span>
+<span class="lineNum">     147 </span><span class="lineCov">          5 :         src-&gt;date.day = dst-&gt;date.day;</span>
+<span class="lineNum">     148 </span>            :     }
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     //若输入部门,则该字段不为空,更新
+<span class="lineNum">     151 </span><span class="lineCov">          6 :     if (strlen(dst-&gt;department) != 0) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :         COPY_STRING(src-&gt;department, dst-&gt;department, strlen(dst-&gt;department));</span>
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :     //若输入职位,则该字段不为空,更新
+<span class="lineNum">     156 </span><span class="lineCov">          6 :     if (strlen(dst-&gt;position) != 0) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">          1 :         COPY_STRING(src-&gt;position, dst-&gt;position, strlen(dst-&gt;position));</span>
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span>            :     //调试日志
+<span class="lineNum">     161 </span><span class="lineCov">          6 :     LOG_DEBUG(&quot;src size = %d, dst size = %d&quot;, sizeof(*src), sizeof(*dst));</span>
+<span class="lineNum">     162 </span><span class="lineCov">          6 :     if (g_log_level == LOG_LEVEL_DEBUG) {</span>
+<span class="lineNum">     163 </span><span class="lineCov">          6 :         show_one_employee_info(dst);</span>
+<span class="lineNum">     164 </span><span class="lineCov">          6 :         show_one_employee_info(src);</span>
+<span class="lineNum">     165 </span>            :     }
+<span class="lineNum">     166 </span>            : }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : /*
+<span class="lineNum">     169 </span>            :  *@brief 排序匹配信息
+<span class="lineNum">     170 </span>            :  *@param [in]matched_info 数组
+<span class="lineNum">     171 </span>            :  *@param [in]matched_cnt 数组大小
+<a name="172"><span class="lineNum">     172 </span>            :  *@param [in]sort_type 排序类型</a>
+<span class="lineNum">     173 </span>            :  */
+<span class="lineNum">     174 </span><span class="lineCov">          6 : void sort_matched_info(employee_info_t** matched_info, int matched_cnt, sort_type_t sort_type)</span>
+<span class="lineNum">     175 </span>            : {
+<span class="lineNum">     176 </span><span class="lineCov">          6 :     if (matched_info == NULL || matched_cnt == 0) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     178 </span>            :     }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :     //排序按类型排序
+<span class="lineNum">     181 </span><span class="lineCov">          6 :     if (sort_type &amp; SORT_BY_ID) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">          1 :         qsort(matched_info, matched_cnt, sizeof(employee_info_t*), compare_work_id);</span>
+<span class="lineNum">     183 </span><span class="lineCov">          5 :     } else if (sort_type &amp; SORT_BY_DATE) {</span>
+<span class="lineNum">     184 </span><span class="lineCov">          1 :         qsort(matched_info, matched_cnt, sizeof(employee_info_t*), compare_entry_date);</span>
+<span class="lineNum">     185 </span>            :     }
+<span class="lineNum">     186 </span>            : }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : /*
+<a name="189"><span class="lineNum">     189 </span>            :  *@brief 显示单个员工信息</a>
+<span class="lineNum">     190 </span>            :  */
+<span class="lineNum">     191 </span><span class="lineCov">         34 : void show_one_employee_info(employee_info_t* info)</span>
+<span class="lineNum">     192 </span>            : {
+<span class="lineNum">     193 </span><span class="lineCov">         34 :     if (info == NULL) {</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     195 </span>            :     }
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">         34 :     LOG_INFO(&quot;employee info: work id: %s, name: %s, date:%d.%d.%d, department:%s, position:%s&quot;,</span>
+<span class="lineNum">     198 </span>            :         info-&gt;work_id, info-&gt;name, info-&gt;date.year, info-&gt;date.month, info-&gt;date.day, info-&gt;department, info-&gt;position);
+<span class="lineNum">     199 </span>            : }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : /*
+<a name="202"><span class="lineNum">     202 </span>            :  *@brief 显示匹配的员工信息</a>
+<span class="lineNum">     203 </span>            :  */
+<span class="lineNum">     204 </span><span class="lineCov">          7 : void show_matched_employee_info(employee_info_t** matched_info, int matched_cnt)</span>
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span><span class="lineCov">          7 :     if (matched_info == NULL || matched_cnt == 0) {</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     208 </span>            :     }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">         28 :     for (int i = 0; i &lt; matched_cnt; i++) {</span>
+<span class="lineNum">     211 </span><span class="lineCov">         21 :         show_one_employee_info(matched_info[i]);</span>
+<span class="lineNum">     212 </span>            :     }
+<span class="lineNum">     213 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.12</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

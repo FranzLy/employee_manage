@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/liyu/Desktop/SANGFOR/fengyu/employee_manager/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -77,6 +66,17 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,6 +111,45 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named hashtable
+
+# Build rule for target.
+hashtable: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hashtable
+.PHONY : hashtable
+
+# fast build rule for target.
+hashtable/fast:
+	$(MAKE) -f lib/CMakeFiles/hashtable.dir/build.make lib/CMakeFiles/hashtable.dir/build
+.PHONY : hashtable/fast
+
+#=============================================================================
+# Target rules for targets named employeemgr
+
+# Build rule for target.
+employeemgr: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 employeemgr
+.PHONY : employeemgr
+
+# fast build rule for target.
+employeemgr/fast:
+	$(MAKE) -f lib/CMakeFiles/employeemgr.dir/build.make lib/CMakeFiles/employeemgr.dir/build
+.PHONY : employeemgr/fast
+
+#=============================================================================
+# Target rules for targets named emmanager-cli
+
+# Build rule for target.
+emmanager-cli: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 emmanager-cli
+.PHONY : emmanager-cli
+
+# fast build rule for target.
+emmanager-cli/fast:
+	$(MAKE) -f src/CMakeFiles/emmanager-cli.dir/build.make src/CMakeFiles/emmanager-cli.dir/build
+.PHONY : emmanager-cli/fast
+
+#=============================================================================
 # Target rules for targets named employee_manager
 
 # Build rule for target.
@@ -120,143 +159,34 @@ employee_manager: cmake_check_build_system
 
 # fast build rule for target.
 employee_manager/fast:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/build
+	$(MAKE) -f src/CMakeFiles/employee_manager.dir/build.make src/CMakeFiles/employee_manager.dir/build
 .PHONY : employee_manager/fast
 
-src/employee_main.o: src/employee_main.c.o
+#=============================================================================
+# Target rules for targets named mem_check
 
-.PHONY : src/employee_main.o
+# Build rule for target.
+mem_check: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mem_check
+.PHONY : mem_check
 
-# target to build an object file
-src/employee_main.c.o:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_main.c.o
-.PHONY : src/employee_main.c.o
+# fast build rule for target.
+mem_check/fast:
+	$(MAKE) -f test/mem_check/CMakeFiles/mem_check.dir/build.make test/mem_check/CMakeFiles/mem_check.dir/build
+.PHONY : mem_check/fast
 
-src/employee_main.i: src/employee_main.c.i
+#=============================================================================
+# Target rules for targets named unit_test
 
-.PHONY : src/employee_main.i
+# Build rule for target.
+unit_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 unit_test
+.PHONY : unit_test
 
-# target to preprocess a source file
-src/employee_main.c.i:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_main.c.i
-.PHONY : src/employee_main.c.i
-
-src/employee_main.s: src/employee_main.c.s
-
-.PHONY : src/employee_main.s
-
-# target to generate assembly for a file
-src/employee_main.c.s:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_main.c.s
-.PHONY : src/employee_main.c.s
-
-src/employee_mgr.o: src/employee_mgr.c.o
-
-.PHONY : src/employee_mgr.o
-
-# target to build an object file
-src/employee_mgr.c.o:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_mgr.c.o
-.PHONY : src/employee_mgr.c.o
-
-src/employee_mgr.i: src/employee_mgr.c.i
-
-.PHONY : src/employee_mgr.i
-
-# target to preprocess a source file
-src/employee_mgr.c.i:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_mgr.c.i
-.PHONY : src/employee_mgr.c.i
-
-src/employee_mgr.s: src/employee_mgr.c.s
-
-.PHONY : src/employee_mgr.s
-
-# target to generate assembly for a file
-src/employee_mgr.c.s:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_mgr.c.s
-.PHONY : src/employee_mgr.c.s
-
-src/employee_utils.o: src/employee_utils.c.o
-
-.PHONY : src/employee_utils.o
-
-# target to build an object file
-src/employee_utils.c.o:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_utils.c.o
-.PHONY : src/employee_utils.c.o
-
-src/employee_utils.i: src/employee_utils.c.i
-
-.PHONY : src/employee_utils.i
-
-# target to preprocess a source file
-src/employee_utils.c.i:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_utils.c.i
-.PHONY : src/employee_utils.c.i
-
-src/employee_utils.s: src/employee_utils.c.s
-
-.PHONY : src/employee_utils.s
-
-# target to generate assembly for a file
-src/employee_utils.c.s:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/employee_utils.c.s
-.PHONY : src/employee_utils.c.s
-
-src/hash_data.o: src/hash_data.c.o
-
-.PHONY : src/hash_data.o
-
-# target to build an object file
-src/hash_data.c.o:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/hash_data.c.o
-.PHONY : src/hash_data.c.o
-
-src/hash_data.i: src/hash_data.c.i
-
-.PHONY : src/hash_data.i
-
-# target to preprocess a source file
-src/hash_data.c.i:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/hash_data.c.i
-.PHONY : src/hash_data.c.i
-
-src/hash_data.s: src/hash_data.c.s
-
-.PHONY : src/hash_data.s
-
-# target to generate assembly for a file
-src/hash_data.c.s:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/hash_data.c.s
-.PHONY : src/hash_data.c.s
-
-src/parse_args.o: src/parse_args.c.o
-
-.PHONY : src/parse_args.o
-
-# target to build an object file
-src/parse_args.c.o:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/parse_args.c.o
-.PHONY : src/parse_args.c.o
-
-src/parse_args.i: src/parse_args.c.i
-
-.PHONY : src/parse_args.i
-
-# target to preprocess a source file
-src/parse_args.c.i:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/parse_args.c.i
-.PHONY : src/parse_args.c.i
-
-src/parse_args.s: src/parse_args.c.s
-
-.PHONY : src/parse_args.s
-
-# target to generate assembly for a file
-src/parse_args.c.s:
-	$(MAKE) -f CMakeFiles/employee_manager.dir/build.make CMakeFiles/employee_manager.dir/src/parse_args.c.s
-.PHONY : src/parse_args.c.s
+# fast build rule for target.
+unit_test/fast:
+	$(MAKE) -f test/unit_test/CMakeFiles/unit_test.dir/build.make test/unit_test/CMakeFiles/unit_test.dir/build
+.PHONY : unit_test/fast
 
 # Help Target
 help:
@@ -264,24 +194,14 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... rebuild_cache"
+	@echo "... hashtable"
+	@echo "... employeemgr"
+	@echo "... emmanager-cli"
 	@echo "... employee_manager"
-	@echo "... src/employee_main.o"
-	@echo "... src/employee_main.i"
-	@echo "... src/employee_main.s"
-	@echo "... src/employee_mgr.o"
-	@echo "... src/employee_mgr.i"
-	@echo "... src/employee_mgr.s"
-	@echo "... src/employee_utils.o"
-	@echo "... src/employee_utils.i"
-	@echo "... src/employee_utils.s"
-	@echo "... src/hash_data.o"
-	@echo "... src/hash_data.i"
-	@echo "... src/hash_data.s"
-	@echo "... src/parse_args.o"
-	@echo "... src/parse_args.i"
-	@echo "... src/parse_args.s"
+	@echo "... mem_check"
+	@echo "... unit_test"
 .PHONY : help
 
 

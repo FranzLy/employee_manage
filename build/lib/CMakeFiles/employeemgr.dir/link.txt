@@ -1,0 +1,1 @@
+/usr/bin/cc  -fPIC -w -g -g  -shared -Wl,-soname,libemployeemgr.so -o libemployeemgr.so CMakeFiles/employeemgr.dir/hash_table/hash_table.c.o CMakeFiles/employeemgr.dir/employee_manager/employee_utils.c.o CMakeFiles/employeemgr.dir/employee_manager/employee_mgr.c.o 

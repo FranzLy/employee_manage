@@ -1,0 +1,1 @@
+/usr/bin/cc  -fPIC -w -g -g  -shared -Wl,-soname,libemmanager-cli.so -o ../lib/libemmanager-cli.so CMakeFiles/emmanager-cli.dir/command_parse/parse_args.c.o CMakeFiles/emmanager-cli.dir/__/lib/hash_table/hash_table.c.o CMakeFiles/emmanager-cli.dir/__/lib/employee_manager/employee_utils.c.o CMakeFiles/emmanager-cli.dir/__/lib/employee_manager/employee_mgr.c.o 
